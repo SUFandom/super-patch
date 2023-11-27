@@ -1,0 +1,21 @@
+**DISCLAIMER NOTICE**
+
+**IMPORTANT:** Please read this disclaimer carefully before using the Samsung GSI to SUPER software tool.
+
+**WARNING:** This software tool is currently in the development testing phase, which means that there is a risk of things going wrong. If you encounter any problems, please do not hesitate to contact the developer for assistance.
+
+**BEFORE USING THIS SOFTWARE TOOL:**
+
+1. **Prepare a stock AP:** In case the flashing process fails, having a stock AP ready will allow you to restore your device to its original state.
+
+2. **Perform a NAND wipe:** Before flashing the Super Image file, it is essential to perform a NAND wipe to ensure a clean installation.
+
+3. **Consider using an alternative tool:** For a more stable and reliable flashing experience, consider using the tool available at https://github.com/Takumi123x/rou.
+
+4. **Exercise caution and mental preparedness:** Be prepared for potential issues that may arise during the flashing process.
+
+**DISCLAIMER:**
+
+The author of this software tool is not liable for any damage caused to your device as a result of using this software. By using this software, you acknowledge and accept the risks involved and agree to take full responsibility for any consequences.
+
+**PLEASE USE THIS SOFTWARE TOOL WITH CAUTION AND AT YOUR OWN RISK.**
