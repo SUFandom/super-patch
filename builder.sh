@@ -163,6 +163,54 @@ function extract_super_img {
         mdt "Super was reported to be uncompressed now by unlz4, confirming"
         if [ -e "$LAB/super.img" ]; then 
             mdt "Super was indeed Uncompressed"
+            if [ -e "$LAB/super.img" ]; then 
+                mdt "Now, converting it"
+                simg2img $LAB/super.img $LAB/super_raw.img
+                mdt "Simg2img process stopped, checking if super_raw exists..."
+                if [ -e "$LAB/super_raw.img" ]; then 
+                    mdt "super_raw.img exists, checking the file"
+                        if [ "$(ls -nl "$LAB/super_raw.img" | awk '{print $5}')" -lt 100000 ]; then
+                            mdt "Super raw seems abnormally tiny (below 100MB)"
+                            mdt "Removing Super_raw since it may be obsolete"
+                            mdt "Instead using super instead"
+                            rm -rf $LAB/super_raw.img
+                            mdt "Dumping super.img"
+                            lpdump $LAB/super.img > $TMP/super_map.txt
+                            mdt "Dumping Done"
+                            mdt "Calling printf to do something..."
+                            printf "$(<$TMP/super_map.txt)" | grep -e "Size:" | awk '{print $2}' > $TMP/super_size.txt
+                            printf "$(<$TMP/super_map.txt)" | grep -e "Maximum size:" | awk '{print $3}' | sed '2!d' > $TMP/super_main.txt
+                            mdt "printf process done"
+                            mdt "Packing"
+                            lpunpack $LAB/super.img $LAB/
+                            mdt "Done"
+                            gsi_select
+                        else 
+                            mdt "Removing Super.img since we have super_raw"
+                            rm -rf $LAB/super.img
+                            mdt "Super.img removed"
+                            mdt "Dumping super_raw.img"
+                            lpdump $LAB/super_raw.img > $TMP/super_map.txt
+                            mdt "Dumping Done"
+                            mdt "Calling printf to do something..."
+                            printf "$(<$TMP/super_map.txt)" | grep -e "Size:" | awk '{print $2}' > $TMP/super_size.txt
+                            printf "$(<$TMP/super_map.txt)" | grep -e "Maximum size:" | awk '{print $3}' | sed '2!d' > $TMP/super_main.txt
+                            mdt "printf process done"
+                            mdt "Packing"
+                            lpunpack $LAB/super_raw.img $LAB/
+                            gsi_picker
+                        fi
+                    else 
+                        mdt "Cannot proceed because super_raw is not present, it also proves the fact that super.img could be corrupted"
+                        sleep 3
+                        menu_man "Error: super_img_corrupt"
+                    fi
+                else
+                    mdt "Could not find super.img"
+                    mdt "Try checking Terminal permissions"
+                    sleep 3
+                    menu_man "Error: cant locate super.img?"
+                fi 
         else 
             mdt "Super was not uncompressed"
             mdt "It seems theres an internal error."
