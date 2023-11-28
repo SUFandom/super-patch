@@ -29,7 +29,7 @@ case $(uname -m) in
         echo "Since you are running this in desktop, the process will be happening inside the super-patch folder"
         echo "Dir: $LAB"
         echo "So please move the files there"
-        echo "If you are using WSA, you can check it on File Explorer, but we recommend you to run the Environment at WSL 1 for better performance throughout the process"
+        echo "If you are using WSA, you can check it on File Explorer, but we recommend you to run the Environment at WSL 2 for the tools to get working properly"
         echo ""
         echo ""
         echo "Starting in 10 seconds..."
