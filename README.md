@@ -44,7 +44,7 @@ Super-patch is a Samsung GSI to Super Builder, as partition tables are getting m
 | GSI FILE DOWNLOAD         | [ ] |     [ ]     |
 | Multi Language            | [ ] |     [ ]     |
 
-Rou is very simple and sticks to its core purpose while super-patch make sure that the building process are mostly happen in Termux, with little intervention on the outside
+Rou is very simple and sticks to its core purpose while super-patch make sure that the building process are mostly happen in Termux, with little intervention on the outside (soon)
 
 # Instructions
 
