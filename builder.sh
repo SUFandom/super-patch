@@ -33,7 +33,7 @@ case $(uname -m) in
         echo ""
         echo ""
         echo "Starting in 10 seconds..."
-        #sleep 10
+        sleep 10
         ;;
     "aarch64")
         termux-setup-storage
@@ -130,6 +130,8 @@ function extract_ap {
             mdt "File Moved and Cleaning Useless leftovers..."
             rm -rf $LAB/AP
             mdt "Useless Files Removed"
+            sleep 1
+            menu_ap_super
         else 
             mdt "No LZ4 Version of Super.img was found after extraction, checking if theres super.img"
             if [ -e "$LAb/AP/super.img" ]; then 
@@ -451,14 +453,21 @@ function build_normal_cmp {
     mdt "Starting : build_file"
     build_file
     mdt "It seems process : build_file has completed the task"
+    file_name=$(dialog --backtitle "SAMSUNG GSI TO SUPER - $VERSION_ID - $STATUS" --title "Name-a-file" --inputbox "Enter what you want to name this file: \n\nREMEBER: NO SPACES, FILE EXTENSIONS AND SLASHES AND IF IT BREAKS ITS YOUR FAULT! \nGoing back resets to default name\n\nDefault:" 0 0 "exported_super" 2>&1 >/dev/tty)
+    if [ -z "$file_name" ]; then
+        mdt "No value detected, using default name"
+        file_name="exported_super"
+    else 
+        mdt "Name: $file_name"
+    fi
     mdt "Calling tar to pack"
-    mdt "BTW renaming package feature is coming soon"
-    tar -cvf $LAB/output_builder_super.tar super.img
+    #mdt "BTW renaming package feature is coming soon"
+    tar -cvf $LAB/$file_name.tar super.img
     mdt "Done"
     mdt "Cleaning..."
     rm -rf $LAB/super.img
     mdt "Checking the tar file"
-    if [ "$(ls -nl $LAB/output_builder_super.tar | awk '{print $5}')" -lt 100000 ]; then 
+    if [ "$(ls -nl $LAB/$file_name.tar | awk '{print $5}')" -lt 100000 ]; then 
         mdt "ONO!"
         mdt "The tar file size is not right!"
         mdt "Error: B_NT_25"
@@ -468,7 +477,7 @@ function build_normal_cmp {
     else 
         mdt "YES! IT IS DONE"
         mdt "File is completed"
-        mdt "File was located in : $LAB/output_builder_super.tar, now ready to flash..."
+        mdt "File was located in : $LAB/$file_name.tar, now ready to flash..."
         mdt "Going back to menu in 5 seconds"
         menu_man
     fi
@@ -479,14 +488,22 @@ function build_xz_cmp {
     mdt "Starting : build_file"
     build_file
     mdt "It seems process : build_file has completed the task"
-    mdt "Calling tar to pack"
-    mdt "BTW renaming package feature is coming soon"
-    tar --xz -cvf $LAB/output_builder_super.tar.xz super.img
+    sleep 2
+    file_name=$(dialog --backtitle "SAMSUNG GSI TO SUPER - $VERSION_ID - $STATUS" --title "Name-a-file" --inputbox "Enter what you want to name this file: \n\nREMEBER: NO SPACES, FILE EXTENSIONS AND SLASHES AND IF IT BREAKS ITS YOUR FAULT! \n\nDefault:" 0 0 "exported_super" 2>&1 >/dev/tty)
+    if [ -z "$file_name" ]; then
+        mdt "No value detected, using default name"
+        file_name="exported_super"
+    else 
+        mdt "Name: $file_name"
+    fi
+    mdt "Calling tar to pack alongside with the name"
+    #mdt "BTW renaming package feature is coming soon"
+    tar --xz -cvf $LAB/$file_name.tar.xz super.img
     mdt "Done"
     mdt "Cleaning..."
     rm -rf $LAB/super.img
-    mdt "Checking the tar file"
-    if [ "$(ls -nl $LAB/output_builder_super.tar.xz | awk '{print $5}')" -lt 100000 ]; then 
+    mdt "Checking the tar.xz file"
+    if [ "$(ls -nl $LAB/$file_name.tar.xz | awk '{print $5}')" -lt 100000 ]; then 
         mdt "ONO!"
         mdt "The tar file size is not right!"
         mdt "Error: B_XZ_25"
@@ -496,7 +513,7 @@ function build_xz_cmp {
     else 
         mdt "YES! IT IS DONE"
         mdt "File is completed"
-        mdt "File was located in : $LAB/output_builder_super.tar.xz, now ready to flash..."
+        mdt "File was located in : $LAB/$file_name.tar.xz, now ready to flash..."
         mdt "Going back to menu in 5 seconds"
         menu_man
     fi
@@ -508,13 +525,20 @@ function build_7z_cmp {
     build_file
     mdt "It seems process : build_file has completed the task"
     mdt "Calling 7z to pack"
-    mdt "BTW renaming package feature is coming soon"
-    7z a $LAB/output_builder_super.7z $LAB/super.img
+    file_name=$(dialog --backtitle "SAMSUNG GSI TO SUPER - $VERSION_ID - $STATUS" --title "Name-a-file" --inputbox "Enter what you want to name this file: \n\nREMEBER: NO SPACES, FILE EXTENSIONS AND SLASHES AND IF IT BREAKS ITS YOUR FAULT! \nGoing back resets to default name\n\nDefault:" 0 0 "exported_super" 2>&1 >/dev/tty)
+    if [ -z "$file_name" ]; then
+        mdt "No value detected, using default name"
+        file_name="exported_super"
+    else 
+        mdt "Name: $file_name"
+    fi
+    #mdt "BTW renaming package feature is coming soon"
+    7z a $LAB/$file_name.7z $LAB/super.img
     mdt "Done"
     mdt "Cleaning..."
     rm -rf $LAB/super.img
-    mdt "Checking the tar file"
-    if [ "$(ls -nl $LAB/output_builder_super.7z | awk '{print $5}')" -lt 100000 ]; then 
+    mdt "Checking the 7z file"
+    if [ "$(ls -nl $LAB/$file_name.7z | awk '{print $5}')" -lt 100000 ]; then 
         mdt "ONO!"
         mdt "The 7z file size is not right!"
         mdt "Error: B_7Z_25"
@@ -524,7 +548,7 @@ function build_7z_cmp {
     else 
         mdt "YES! IT IS DONE"
         mdt "File is completed"
-        mdt "File was located in : $LAB/output_builder_super.7z, now ready to flash..."
+        mdt "File was located in : $LAB/$file_name.7z, now ready to flash..."
         mdt "Going back to menu in 5 seconds"
         menu_man
     fi
@@ -559,7 +583,7 @@ function gsi_picker {
                         menu_ap_super
                     else 
                         mdt "File size valid, inspectioning the file"
-                        if [ "${gsi_input}" == "*.img" ]; then 
+                        if [ -e "${gsi_input}" ]; then # Sadly this cannot be modified
                             mdt "File Inspection complete and is an image file."
                             mdt "Moving the file"
                             rm -rf $LAB/system.img
