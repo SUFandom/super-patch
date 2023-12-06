@@ -55,7 +55,10 @@ Rou is very simple and sticks to its core purpose while super-patch make sure th
 
 Well you want to build a Super for your Samsung Device, well this script got you!
 
-*This instruction works only on termux*
+
+But first, check if your device is compatible [here](https://github.com/phhusson/treble_experimentations/wiki/Samsung)
+
+[*For Samsung Galaxy A12 List*](https://github.com/phhusson/treble_experimentations/wiki/Samsung-Galaxy-A12s-%28Exynos-850%29) because unlike other devices of Samsung that can work with fastbootd, Galaxy A12 is different
 
 First copy these:
 
