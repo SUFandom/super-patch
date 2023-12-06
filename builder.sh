@@ -3,7 +3,7 @@
 
 
 # GLOBAL VARIABLES (FOR INFO AND EYECANDY)
-VERSION_ID="0.4"
+VERSION_ID="0.5"
 STATUS="devel_git"
 
 if [ "$(pwd)" == "$(pwd | grep -a super-patch)" ]; then 
