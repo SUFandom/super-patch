@@ -3,7 +3,7 @@
 
 
 # GLOBAL VARIABLES (FOR INFO AND EYECANDY)
-VERSION_ID="0.5"
+VERSION_ID="0.6"
 STATUS="devel_git"
 
 if [ "$(pwd)" == "$(pwd | grep -a super-patch)" ]; then 
@@ -20,12 +20,33 @@ case $(uname -m) in
             echo "Please Run this as root"
             exit 1
         fi
-        if [[ wsainfo > /dev/null ]] || [ -e /init ]; then 
+        if [[ "$(wsainfo > /dev/null)" ]]; then 
             echo "WSL detected"
+            LAB="$(pwd)/image_build"
+            TMP="$HOME/cached_sp"
+            CLEAR_UP="0"
+            mkdir "$TMP"
+            mkdir "$LAB"
+            sudo cp -rf packages/amd64/* /bin/
+            sudo apt install android-sdk-libsparse-utils -y
+            sudo apt-get update --fix-missing
+            sudo apt-get install --fix-missing
+            sudo apt install android-sdk-libsparse-utils -y
+            sudo apt install p7zip-full lz4 -y
+            clear 
+            echo "Since you are running this in desktop, the process will be happening inside the super-patch folder"
+            echo "Dir: $LAB"
+            echo "So please move the files there"
+            echo "If you are using WSA, you can check it on File Explorer, but we recommend you to run the Environment at WSL 2 for the tools to get working properly"
+            echo ""
+            echo ""
+            echo "Starting in 10 seconds..."
+            sleep 10
         else 
             echo "Real Debian Confirmed"
             LAB="$(pwd)/image_build"
             TMP="$HOME/cached_sp"
+            CLEAR_UP="0"
             mkdir "$TMP"
             mkdir "$LAB"
             sudo cp -rf packages/amd64/* /bin
@@ -33,8 +54,7 @@ case $(uname -m) in
             sudo apt update --fix-missing -y
             sudo apt install --fix-missing -y
             sudo apt install android-sdk-libsparse-utils -y
-            sudo apt install p7zip-full -y 
-            sudo apt install lz4 -y
+            sudo apt install p7zip-full lz4  -y 
             clear
             echo "Real Debian Moment Here!"
             echo "The Environment the building will take place at:"
@@ -44,28 +64,8 @@ case $(uname -m) in
             echo -ne "\n\nRemeber that..."
             echo "Starting in 10 seconds"
             sleep 10
-            disclaimer
+            
         fi
-        LAB="$(pwd)/image_build"
-        TMP="$HOME/cached_sp"
-        mkdir "$TMP"
-        mkdir "$LAB"
-        sudo cp -rf packages/amd64/* /bin/
-        sudo apt install android-sdk-libsparse-utils
-        sudo apt-get update --fix-missing
-        sudo apt-get install --fix-missing
-        sudo apt install android-sdk-libsparse-utils
-        sudo apt install p7zip-full
-        sudo apt install lz4
-        clear 
-        echo "Since you are running this in desktop, the process will be happening inside the super-patch folder"
-        echo "Dir: $LAB"
-        echo "So please move the files there"
-        echo "If you are using WSA, you can check it on File Explorer, but we recommend you to run the Environment at WSL 2 for the tools to get working properly"
-        echo ""
-        echo ""
-        echo "Starting in 10 seconds..."
-        sleep 10
         ;;
     "aarch64")
         termux-setup-storage
@@ -74,6 +74,7 @@ case $(uname -m) in
             dpkg -i packages/termux-arm64/*
             LAB="$HOME/storage/shared/image_build"
             TMP="$HOME/cached_sp"
+            CLEAR_UP="0"
             mkdir "$LAB"
             mkdir "$TMP"
         else 
@@ -91,9 +92,25 @@ case $(uname -m) in
         ;;
 esac
 
-TMP="$HOME/cached_sp"
+#TMP="$HOME/cached_sp"
 
+# Trap Functions
 
+function cleanup_waste {
+    if [[ "$CLEAR_UP" == 1 ]]; then 
+        bar
+        msg "Cleaning Up TMP Directories.."
+        rm -rf "${TMP/*}"
+        msg "Done"
+        bar 
+        exit
+    else 
+        msg "cleanup_waste: FLAG CLEAR_UP was set to 0, will not clean the tmpfiles"
+        exit
+    fi
+}
+
+trap 'cleanup_waste' 0 1
 
 
 # CORE FUNCTIONS
@@ -746,6 +763,7 @@ function conf_man {
                 --title "Configure" \
                 --menu "Change Settings here\n\nWARNING, CHANGING THINGS HERE CAN BREAK THE OPERATION OF THE SCRIPT UNLESS YOU KNOW WHAT YOU ARE DOING!" 0 0 0 \
                 "Change the Testing folder" "Current: $LAB" \
+                "Toggle Wipe Cache on EXIT" "Current: $CLEAR_UP" \
                 2>&1 >/dev/tty)
                 local ervar=$?
                 case $ervar in 
@@ -756,6 +774,9 @@ function conf_man {
                 case $menu_png in 
                     "Change the Testing folder")
                         changeLAB
+                        ;;
+                    "Toggle Wipe Cache on EXIT")
+                        wipe_cache_diag
                         ;;
                     esac
 
@@ -816,6 +837,37 @@ function changeLAB {
                                 fi
                             ;;
                         esac
+}
+
+function wipe_cache_diag {
+    if [ "$CLEAR_UP" == 0 ]; then 
+        yesno "Are you sure you want to Enable the Auto TMP Wipe?\n\nThis is not recommended to be enabled in a session because your terminal session could get killed out of nowhere and then tmpfiles could get deleted, thus you need to redo the whole process again!"
+        local extvar=$?
+        case $extvar in
+            0)
+                CLEAR_UP="1"
+                msgbox "Done"
+                menu_man
+                ;;
+            1)
+                conf_man
+                ;;
+        esac 
+    else 
+        yesno "Are you sure you want to Disable the Auto TMP Wipe?"
+        local extvar=$?
+        case $extvar in
+            0)
+                CLEAR_UP="0"
+                msgbox "Done"
+                menu_man
+                ;;
+            1)
+                conf_man
+                ;;
+        esac
+    fi 
+
 }
 
 

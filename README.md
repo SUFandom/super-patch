@@ -8,12 +8,12 @@ Badges:
 
 ![alttext](https://img.shields.io/static/v1?label=status%20on%20git&message=devel&color=red&style=flat-square)
 
-![alttext](https://img.shields.io/static/v1?label=Status%20on%20Termux&message=working&color=brightgreen&style=flat-square&logo=android) ![alttext](https://img.shields.io/static/v1?label=Status%20on%20WSL&message=ERROR&color=red&style=flat-square&logo=windowsterminal)![alttext](https://img.shields.io/badge/Debian-Untested-000?style=flat-square&logo=debian)
+![alttext](https://img.shields.io/static/v1?label=Status%20on%20Termux&message=working&color=brightgreen&style=flat-square&logo=android) ![alttext](https://img.shields.io/static/v1?label=Status%20on%20WSL&message=ERROR&color=red&style=flat-square&logo=windowsterminal) ![alttext](https://img.shields.io/badge/Debian-Untested-000?style=flat-square&logo=debian)
 
 
 ---
 
-This Script Only works on termux for now
+This Script Only works on termux (*and prob debian 12*) for now
 
 
 ## Credits due who supported the project:
@@ -30,19 +30,24 @@ What is super-patch?
 
 Super-patch is a Samsung GSI to Super Builder, as partition tables are getting more complex, this script can help you make sure any GSI with any A/B Partition modes will work! **BUT IT DOES NOT GUARANTEE THAT IT WILL REALLY WORK BECAUSE GSIs TEND TO NOT WORK IN SOME DEVICES REGARDLESS OF USING THIS TOOL**
 
+## Whats Up!
+
+Check update [notes](/updates/notes/0.6.md)
+
 ## Table Chart!
 
-| THINGS                    | ROU | SUPER-PATCH |
-|---------------------------|-----|:-----------:|
-| TD-based GSI BUILDING     | [x] |     [x]     |
-| NON-TD Based GSI BUILDING | [x] |     [x]     |
-| RENAME OUTPUT BUILDS      | [ ] |     [x]     |
-| CHANGE DIRECTORY BUILD    | [x] |     [x]     |
-| BUILT-IN WIKI             | [ ] |     [x]     |
-| AP Extract                | [x] |     [x]     |
-| GSI PICKER                | [ ] |     [x]     |
-| GSI FILE DOWNLOAD         | [ ] |     [ ]     |
-| Multi Language            | [ ] |     [ ]     |
+| THINGS                                                     | ROU | SUPER-PATCH |
+|------------------------------------------------------------|-----|-------------|
+| TD-based GSI BUILDING                                      |  ✅  |      ✅      |
+| NON-TD Based GSI BUILDING                                  |  ✅  |      ✅      |
+| RENAME OUTPUT BUILDS                                       |  ❌  |      ✅      |
+| CHANGE DIRECTORY BUILD                                     |  ✅  |      ✅      |
+| BUILT-IN WIKI                                              |  ❌  |      ✅      |
+| AP Extract                                                 |  ✅  |      ✅      |
+| ODM Support (For MediaTek and UniSOC-based Samsung Devices) |  ✅  |      ❌      |
+| GSI PICKER                                                 |  ❌  |      ✅      |
+| GSI FILE DOWNLOAD                                          |  ❌  |      ❌      |
+| Multi Language                                             |  ❌  |      ❌      |
 
 Rou is very simple and sticks to its core purpose while super-patch make sure that the building process are mostly happen in Termux, with little intervention on the outside (soon)
 
