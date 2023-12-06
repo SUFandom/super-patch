@@ -6,6 +6,12 @@
 VERSION_ID="0.4"
 STATUS="devel_git"
 
+if [ "$(pwd)" == "$(pwd | grep -a super-patch)" ]; then 
+    echo "1st phse gd"
+else 
+    echo "Please run this script inside super-patch directory"
+    exit 1
+fi 
 
 # ANOTHER GLOBAL VARIABLES (THAT ARE MUTABLE IF CONFIGED, NEXT VERSION)
 case $(uname -m) in
@@ -13,6 +19,32 @@ case $(uname -m) in
         if [ $EUID != 0 ]; then 
             echo "Please Run this as root"
             exit 1
+        fi
+        if [[ wsainfo > /dev/null ]] || [ -e /init ]; then 
+            echo "WSL detected"
+        else 
+            echo "Real Debian Confirmed"
+            LAB="$(pwd)/image_build"
+            TMP="$HOME/cached_sp"
+            mkdir "$TMP"
+            mkdir "$LAB"
+            sudo cp -rf packages/amd64/* /bin
+            sudo apt install android-sdk-libsparse-utils -y
+            sudo apt update --fix-missing -y
+            sudo apt install --fix-missing -y
+            sudo apt install android-sdk-libsparse-utils -y
+            sudo apt install p7zip-full -y 
+            sudo apt install lz4 -y
+            clear
+            echo "Real Debian Moment Here!"
+            echo "The Environment the building will take place at:"
+            echo "$LAB"
+            echo "And the TMP will be at:"
+            echo "$TMP"
+            echo -ne "\n\nRemeber that..."
+            echo "Starting in 10 seconds"
+            sleep 10
+            disclaimer
         fi
         LAB="$(pwd)/image_build"
         TMP="$HOME/cached_sp"
@@ -110,6 +142,7 @@ function yesno () {
     clear
     dialog --backtitle "SAMSUNG GSI TO SUPER - $VERSION_ID - $STATUS" --title "Confirm" --yes-label "Sure" --no-label "Cancel" --yesno "$1" 0 0  
 }
+
 
 
 # Inner workings
