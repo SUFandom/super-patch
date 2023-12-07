@@ -32,7 +32,7 @@ Super-patch is a Samsung GSI to Super Builder, as partition tables are getting m
 
 ## Whats Up!
 
-Check update [notes](/updates/notes/0.6.md)
+Check update [notes](/updates/notes/0.7.md)
 
 ## Table Chart!
 
