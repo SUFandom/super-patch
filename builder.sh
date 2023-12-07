@@ -3,7 +3,7 @@
 
 
 # GLOBAL VARIABLES (FOR INFO AND EYECANDY)
-VERSION_ID="0.6"
+VERSION_ID="0.7"
 STATUS="devel_git"
 
 if [ "$(pwd)" == "$(pwd | grep -a super-patch)" ]; then 
@@ -27,13 +27,15 @@ case $(uname -m) in
             CLEAR_UP="0"
             mkdir "$TMP"
             mkdir "$LAB"
-            sudo cp -rf packages/amd64/* /bin/
-            sudo apt install android-sdk-libsparse-utils -y
-            sudo apt-get update --fix-missing
-            sudo apt-get install --fix-missing
-            sudo apt install android-sdk-libsparse-utils -y
-            sudo apt install p7zip-full lz4 -y
-            clear 
+            if [ ! -f "$TMP/pass" ]; then
+                sudo cp -rf packages/amd64/* /bin
+                sudo apt install android-sdk-libsparse-utils -y
+                sudo apt update --fix-missing -y
+                sudo apt install --fix-missing -y
+                sudo apt install android-sdk-libsparse-utils -y
+                sudo apt install p7zip-full lz4  -y 
+                touch "$TMP/pass"
+            fi 
             echo "Since you are running this in desktop, the process will be happening inside the super-patch folder"
             echo "Dir: $LAB"
             echo "So please move the files there"
@@ -49,22 +51,25 @@ case $(uname -m) in
             CLEAR_UP="0"
             mkdir "$TMP"
             mkdir "$LAB"
-            sudo cp -rf packages/amd64/* /bin
-            sudo apt install android-sdk-libsparse-utils -y
-            sudo apt update --fix-missing -y
-            sudo apt install --fix-missing -y
-            sudo apt install android-sdk-libsparse-utils -y
-            sudo apt install p7zip-full lz4  -y 
-            clear
-            echo "Real Debian Moment Here!"
-            echo "The Environment the building will take place at:"
-            echo "$LAB"
-            echo "And the TMP will be at:"
-            echo "$TMP"
-            echo -ne "\n\nRemeber that..."
-            echo "Starting in 10 seconds"
-            sleep 10
-            
+            if [ ! -f "$TMP/pass" ]; then
+                sudo cp -rf packages/amd64/* /bin
+                sudo apt install android-sdk-libsparse-utils -y
+                sudo apt update --fix-missing -y
+                sudo apt install --fix-missing -y
+                sudo apt install android-sdk-libsparse-utils -y
+                sudo apt install p7zip-full lz4  -y 
+                touch "$TMP/pass"
+            fi 
+                clear
+                echo "Real Debian Moment Here!"
+                echo "The Environment the building will take place at:"
+                echo "$LAB"
+                echo "And the TMP will be at:"
+                echo "$TMP"
+                echo -ne "\n\nRemeber that..."
+                echo "Starting in 10 seconds"
+                #sleep 10
+                
         fi
         ;;
     "aarch64")
@@ -342,7 +347,8 @@ function menu_ap_super {
                 --backtitle "SAMSUNG GSI TO SUPER - $VERSION_ID - $STATUS" \
                 --title "Extract AP/Super" \
                 --menu "Select what you want to do in the menu\n\nReports by super_info:$(super_info)\n\nIf these values are empty, it means you didnt do the process or something.\nAsk us at the Telegram Group" 0 0 0 \
-                "Extract AP" "Extract AP File" \
+                "Extract AP" "Extract AP File (Stock AP)" \
+                "Extract Magisked AP" "Extract Magisked AP" \
                 "Extract Super" "Extract Super File instead" \
                 "Pick GSI" "Pick GSI" \
                 2>&1 >/dev/tty)
@@ -389,6 +395,18 @@ function menu_ap_super {
                     "Pick GSI")
                         gsi_picker
                         ;;
+                    "Extract Magisked AP")
+                        yesno "Are you sure you want to pick 'Extract Magisked AP'?"
+                        fetch=$?
+                        case $fetch in 
+                            0)
+                                magisk_pick_ap
+                                ;;
+                            1)
+                                menu_ap_super
+                                ;;
+                        esac
+                        ;;
                     *)
                        clear
                        mdt "Something went wrong and the process needed to end abruptly"
@@ -396,6 +414,75 @@ function menu_ap_super {
                        exit 9
                        ;;
                     esac
+}
+
+function magisk_pick_ap {
+    # This is painful to implement
+    PCX=$(dialog \
+            --backtitle "SAMSUNG GSI TO SUPER - $VERSION_ID - $STATUS" \
+            --title "Pick Patched AP by Magisk" \
+            --ok-label "Pick the AP File" \
+            --cancel-label "Back" \
+            --fselect "$LAB" 0 0 \
+            2>&1 >/dev/tty)
+    local exvar=$?
+    case $exvar in 
+        1)
+            menu_ap_super
+            ;;
+        0)
+            if [ -z $PCX ]; then 
+                mdt "Checking if the file is present..."
+                export DIALOGRC="libs/dialog-rc/error.thm"
+                msgbox "ERROR" "The variable is null!"
+                unset DIALOGRC
+                menu_man "Empty Entry from: magisk_pick_ap"
+            else 
+                mdt "Checking if $PCX is present and has the right size"
+                if [ -e $PCX ] && [ $(ls -nl $PCX | awk '{print $5}') -gt 2000000000 ]; then 
+                    mdt "Correct file"
+                    mdt "Moving file: $PCX to $LAB/MAP"
+                    mkdir $LAB/MAP
+                    mv -r $PCX $LAB/MAP/magisked.tar
+                    if [ -e "$LAB/MAP/magisked.tar" ]; then 
+                        mdt "File Done Copied"
+                        mdt "Extracting..."
+                        7z e $LAB/MAP/magisked.tar -o $LAB/MAP/
+                        mdt "p7zip reports that the process is done"
+                        mdt "Looking for super"
+                        if [ -e "$LAB/MAP/super.img.lz4" ]; then 
+                            mdt "File found"
+                            mdt "Removing waste"
+                            mdt "Done"
+                            mdt "Revert back to Extract AP/Super then try to extract super to continue"
+                            msg ""
+                            read -n 1 -t 100 -p "PRESS ANY KEY TO END" fdk
+                            if [[ -n $FDK ]]; then
+                                menu_man 
+                            else 
+                                menu_man 
+                            fi 
+                        else 
+                            export DIALOGRC="libs/dialog-rc/error.thm"
+                            msgbox "ERROR, CANNOT FIND SUPER!" "The script cant find the super.img.lz4 from selected $PCX!"
+                            unset DIALOGRC
+                            menu_man "Empty file loc: magisked_ap_file"
+                        fi 
+                    else 
+                        export DIALOGRC="libs/dialog-rc/error.thm"
+                        msgbox "ERROR! CANNOT FIND magisked.tar!" "Uh oh, it seems that the script can't find where the magisked tar is? please check the build location please!"
+                        unset DIALOGRC
+                        menu_man "magisk_pick_ap: No such file found after transfer"
+                    fi
+                else 
+                    export DIALOGRC="libs/dialog-rc/error.thm"
+                    msgbox "ERROR, NOT ENOUGH SIZE" "Are you sure thats the correct size for a Patched AP? it may be smaller than that or you used official magisk to patch.\n\nWe recommend you to use Magisk Delta or Magisk Kitsune instead since it only works on Samsung\n\nDebug:\nFile Size Reported: $(ls -nl "$PCX" | awk '{print $5}') \n Which it violates the 2GB limit"
+                    unset DIALOGRC
+                    menu_man "Error:\nEstimation file wasnt exact"
+                fi 
+            fi 
+        ;;
+    esac
 }
 
 function build_super {
@@ -877,8 +964,10 @@ function about {
 }
 
 function disclaimer {
+    export DIALOGRC="libs/dialog-rc/disclaimer.thm"
     yesno "$(cat docs/disclaimer)"
     local ervar=$?
+    unset DIALOGRC
     case $ervar in 
         1)
             clear 
