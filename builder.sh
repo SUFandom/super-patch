@@ -3,7 +3,7 @@
 
 
 # GLOBAL VARIABLES (FOR INFO AND EYECANDY)
-VERSION_ID="0.7"
+VERSION_ID="0.8"
 STATUS="devel_git"
 
 if [ "$(pwd)" == "$(pwd | grep -a super-patch)" ]; then 
@@ -24,11 +24,16 @@ case $(uname -m) in
             echo "WSL detected"
             LAB="$(pwd)/image_build"
             TMP="$HOME/cached_sp"
+            IS_SUDO="1"
             CLEAR_UP="0"
             mkdir "$TMP"
             mkdir "$LAB"
             if [ ! -f "$TMP/pass" ]; then
                 sudo cp -rf packages/amd64/* /bin
+                addmod=("lpadd" "lpdump" "lpmake" "lpunpack")
+                for elevate in "${addmod[@]}"; do 
+                    chmod +x /usr/bin/$elevate
+                done
                 sudo apt install android-sdk-libsparse-utils -y
                 sudo apt update --fix-missing -y
                 sudo apt install --fix-missing -y
@@ -42,17 +47,22 @@ case $(uname -m) in
             echo "If you are using WSA, you can check it on File Explorer, but we recommend you to run the Environment at WSL 2 for the tools to get working properly"
             echo ""
             echo ""
-            echo "Starting in 10 seconds..."
-            sleep 10
+            echo "Starting in 5 seconds..."
+            sleep 5
         else 
             echo "Real Debian Confirmed"
             LAB="$(pwd)/image_build"
             TMP="$HOME/cached_sp"
+            IS_SUDO="1"
             CLEAR_UP="0"
             mkdir "$TMP"
             mkdir "$LAB"
             if [ ! -f "$TMP/pass" ]; then
                 sudo cp -rf packages/amd64/* /bin
+                addmod=("lpadd" "lpdump" "lpmake" "lpunpack")
+                for elevate in "${addmod[@]}"; do 
+                    chmod +x /usr/bin/$elevate
+                done
                 sudo apt install android-sdk-libsparse-utils -y
                 sudo apt update --fix-missing -y
                 sudo apt install --fix-missing -y
@@ -67,12 +77,15 @@ case $(uname -m) in
                 echo "And the TMP will be at:"
                 echo "$TMP"
                 echo -ne "\n\nRemeber that..."
-                echo "Starting in 10 seconds"
-                #sleep 10
-                
+                echo -ne "\nStarting in 5 seconds\n"
+                sleep 5
         fi
         ;;
     "aarch64")
+        if [ "$EUID" == 0 ]; then
+            echo "Dont use Root Please"
+            exit 1
+        fi
         termux-setup-storage
         ed=$?
         if [ "$ed" == 0 ]; then 
@@ -80,6 +93,7 @@ case $(uname -m) in
             LAB="$HOME/storage/shared/image_build"
             TMP="$HOME/cached_sp"
             CLEAR_UP="0"
+            IS_SUDO="0"
             mkdir "$LAB"
             mkdir "$TMP"
         else 
@@ -173,27 +187,47 @@ function yesno () {
 function extract_ap {
     # Extracts AP, and super
     msg "$(datetime) - Checking if files are present"
-    if [ -e "$LAB/AP_*.tar.md5" ]; then
+    if [ -e $LAB/AP_*.tar.md5 ]; then # Shellcheck Linter tryna telling me wrong for wildcarding if -e rn, i wish i wanna fking bit that sht
         msg "$(datetime) - AP File Found... Extracting"
-        mkdir $LAB/AP
-        7z e $LAB/AP_*.tar.md5 -o $LAB/AP
+        if [ "$IS_SUDO" == "0" ]; then
+            7z e  $LAB/AP_*.tar.md5 -o$LAB/
+        else 
+            sudo 7z e  $LAB/AP_*.tar.md5 -o$LAB/
+        fi 
         #E1
         msg "$(datetime) - Looking for the Super"
-        if [ -e "$LAB/AP/super.img.lz4" ]; then 
+        if [ -e "$LAB/super.img.lz4" ]; then 
             msg "$(datetime) Super.img.lz4 Found"
-            mv -f $LAB/AP/super.img.lz4" "$LAB/super.img.lz4
-            mdt "File Moved and Cleaning Useless leftovers..."
-            rm -rf $LAB/AP
+            #mv -f $LAB/AP/super.img.lz4" "$LAB/super.img.lz4
+            mdt "CLEANUP!"
+            TARGET_RM=("recovery.img.lz4" "boot.img.lz4" "dtbo.img.lz4" "userdata.img.lz4" "misc.bin.lz4" "vbmeta.img.lz4" "vbmeta_system.img.lz4" "meta-data" "metadata.img.lz4" "fota.zip")
+            for KILL in "${TARGET_RM[@]}"; do 
+                if [ "$IS_SUDO" == "0" ]; then 
+                    rm -rf $LAB/$KILL
+                    mdt "$KILL removed as it's useless"
+                else 
+                    sudo rm -rf $LAB/$KILL 
+                    mdt "$KILL removed as it's useless"
+                fi
+            done 
             mdt "Useless Files Removed"
             sleep 1
             menu_ap_super
         else 
             mdt "No LZ4 Version of Super.img was found after extraction, checking if theres super.img"
-            if [ -e "$LAb/AP/super.img" ]; then 
+            if [ -e "$LAB/super.img" ]; then 
                 mdt "Super.img found, moving"
-                mv -f $LAB/AP/super.img $LAB/super.img
-                mdt "File moved, and cleaning useless leftovers"
-                rm -rf $LAB/AP
+               mdt "CLEANUP!"
+                TARGET_RM=("recovery.img" "boot.img" "dtbo.img" "userdata.img" "misc.bin" "vbmeta.img" "vbmeta_system.img" "meta-data" "metadata.img" "fota.zip")
+                for KILL in "${TARGET_RM[@]}"; do 
+                    if [ "$IS_SUDO" == "0" ]; then 
+                        rm -rf "${LAB/$KILL:?}"
+                        mdt "$KILL removed as it's useless"
+                    else 
+                        sudo rm -rf $LAB/$KILL 
+                        mdt "$KILL removed as it's useless"
+                    fi
+                done 
                 mdt "Useless Files Removed"
                 mdt "Going back"
                 sleep 5
@@ -341,6 +375,11 @@ function super_info {
     msg "\nODM Image Size: $(ls -nl "$LAB/odm.img" | awk '{print $5}')"
 }
 
+function wipe_cache_tmp_clut {
+    rm -rf $TMP/* 
+    msgbox "Done" "Files Cleaned"
+    menu_man
+}
 
 function menu_ap_super {
     menu_page=$(dialog \
@@ -443,17 +482,28 @@ function magisk_pick_ap {
                     mdt "Correct file"
                     mdt "Moving file: $PCX to $LAB/MAP"
                     mkdir $LAB/MAP
-                    mv -r $PCX $LAB/MAP/magisked.tar
+                    cp -r $PCX $LAB/MAP/magisked.tar
                     if [ -e "$LAB/MAP/magisked.tar" ]; then 
                         mdt "File Done Copied"
                         mdt "Extracting..."
-                        7z e $LAB/MAP/magisked.tar -o $LAB/MAP/
+                        7z e $LAB/MAP/magisked.tar -o$LAB/MAP/
                         mdt "p7zip reports that the process is done"
                         mdt "Looking for super"
                         if [ -e "$LAB/MAP/super.img.lz4" ]; then 
                             mdt "File found"
                             mdt "Removing waste"
+                            TARGET_RM=("recovery.img.lz4" "boot.img.lz4" "dtbo.img.lz4" "userdata.img.lz4" "misc.bin.lz4" "vbmeta.img.lz4" "vbmeta_system.img.lz4" "meta-data" "metadata.img.lz4" "fota.zip")
+                            for KILL in "${TARGET_RM[@]}"; do 
+                                if [ "$IS_SUDO" == "0" ]; then 
+                                    rm -rf $LAB/MAP/$KILL
+                                    mdt "$KILL removed as it's useless"
+                                else 
+                                    sudo rm -rf $LAB/MAP/$KILL 
+                                    mdt "$KILL removed as it's useless"
+                                fi
+                            done
                             mdt "Done"
+                            mv $LAB/MAP/super.img.lz4 $LAB/
                             mdt "Revert back to Extract AP/Super then try to extract super to continue"
                             msg ""
                             read -n 1 -t 100 -p "PRESS ANY KEY TO END" fdk
@@ -541,6 +591,7 @@ function build_super {
 }
 
 function build_file {
+    clear
     if [ "$(find $LAB/system.img -type f ! -size 0 -printf '%S\n' | sed 's/.\.[0-9]*//')" == 1 ]; then 
         mdt "Processing..."
     else 
@@ -550,7 +601,13 @@ function build_file {
     if [ -e "$LAB/odm.img" ]; then
         if [ -e "$LAB/product.img" ]; then
             mdt "Product already present"
-            mdt "Warning: If the patching didn't work, you can ask the group for help"
+            #mdt "Warning: If the patching didn't work, you can ask the group for help"
+            if [ "$(ls -nl $LAB/product.img | awk '{print $5}')" -gt 4900 ]; then 
+                mdt "Replacing Product.img as it identifies to be a potential stock Product, with universal product.img"
+                cp -rf fake-props/product.img $LAB/product.img
+            else 
+                mdt "Confirmed to be a potential universal product.img detected..."
+            fi 
         else 
             mdt "Product does not exist, probably external interference or old AP device..."
             mdt "Replacing it with Universal Product.img"
@@ -564,7 +621,13 @@ function build_file {
     else 
         if [ -e "$LAB/product.img" ]; then 
             mdt "Product already Present"
-            mdt "If patching didn't work, then you can ask the group for help"
+            #mdt "If patching didn't work, then you can ask the group for help"
+            if [ "$(ls -nl $LAB/product.img | awk '{print $5}')" -gt 4900 ]; then 
+                mdt "Replacing Product.img as it identifies to be a potential stock Product, with universal product.img"
+                cp -rf fake-props/product.img $LAB/product.img
+            else 
+                mdt "Confirmed to be a potential universal product.img detected..."
+            fi 
         else 
             mdt "Product does not exist, probably external interference or old AP device..."
             mdt "Replacing it with Universal Product.img"
@@ -851,6 +914,8 @@ function conf_man {
                 --menu "Change Settings here\n\nWARNING, CHANGING THINGS HERE CAN BREAK THE OPERATION OF THE SCRIPT UNLESS YOU KNOW WHAT YOU ARE DOING!" 0 0 0 \
                 "Change the Testing folder" "Current: $LAB" \
                 "Toggle Wipe Cache on EXIT" "Current: $CLEAR_UP" \
+                "Wipe Cache NOW" "Wipes Cache Now. Only use this if you are done" \
+                "Wipe Inside LAB dir" "Wipes inside LAB variable: $LAB" \
                 2>&1 >/dev/tty)
                 local ervar=$?
                 case $ervar in 
@@ -864,6 +929,12 @@ function conf_man {
                         ;;
                     "Toggle Wipe Cache on EXIT")
                         wipe_cache_diag
+                        ;;
+                    "Wipe Cache NOW")
+                        wipe_cache_tmp_clut
+                        ;;
+                    "Wipe Inside LAB dir")
+                        image_build_wipe
                         ;;
                     esac
 
@@ -959,7 +1030,7 @@ function wipe_cache_diag {
 
 
 function about {
-    msgbox "About" "SAMSUNG GSI TO SUPER BUILDER \n\nVERSION: $VERSION_ID\nFLAGS: $STATUS\n\nIf you struggled using this script, try to use Rou, same thing:\nhttps://github.com/Takumi123x/rou\n\nJoin Telegram: https://t.me/a12schat"
+    msgbox "About" "SAMSUNG GSI TO SUPER BUILDER \n\nVERSION: $VERSION_ID\nFLAGS: $STATUS\n\nIf you struggled using this script, try to use Rou, same thing:\nhttps://github.com/Takumi123x/rou\n\nJoin Telegram: https://t.me/a12schat\n\n\nFlags while running:\nIS_SUDO=$IS_SUDO\nCLEAR_UP=$CLEAR_UP"
     menu_man
 }
 
@@ -979,6 +1050,13 @@ function disclaimer {
             ;;
     esac
 }
+
+function image_build_wipe {
+    rm -rf $LAB/*
+    msgbox "Done" "Clean Done"
+    menu_man
+}
+
 
 disclaimer
 

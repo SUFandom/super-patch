@@ -8,7 +8,7 @@ Badges:
 
 ![alttext](https://img.shields.io/static/v1?label=status%20on%20git&message=devel&color=red&style=flat-square)
 
-![alttext](https://img.shields.io/static/v1?label=Status%20on%20Termux&message=working&color=brightgreen&style=flat-square&logo=android) ![alttext](https://img.shields.io/static/v1?label=Status%20on%20WSL&message=ERROR&color=red&style=flat-square&logo=windowsterminal) ![alttext](https://img.shields.io/badge/Debian-Untested-000?style=flat-square&logo=debian)
+![alttext](https://img.shields.io/static/v1?label=Status%20on%20Termux&message=working&color=brightgreen&style=flat-square&logo=android) ![alttext](https://img.shields.io/static/v1?label=Status%20on%20WSL&message=ERROR&color=red&style=flat-square&logo=windowsterminal) ![alttext](https://img.shields.io/badge/Debian-WORKING-brightgreen?style=flat-square&logo=debian)
 
 
 ---
@@ -32,7 +32,7 @@ Super-patch is a Samsung GSI to Super Builder, as partition tables are getting m
 
 ## Whats Up!
 
-Check update [notes](/updates/notes/0.7.md)
+Check update [notes](/updates/notes/0.8.md)
 
 ## Table Chart!
 
