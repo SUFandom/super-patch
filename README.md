@@ -1,14 +1,14 @@
 # SAMSUNG GSI TO SUPER BUILDER
 
-This is still in development
+This is still in development, but its almost done!
 
 ---
 
 Badges:
 
-![alttext](https://img.shields.io/static/v1?label=status%20on%20git&message=devel&color=red&style=flat-square)
+![alttext](https://img.shields.io/static/v1?label=status%20on%20git&message=devel(Developement)&color=red&style=flat-square)
 
-![alttext](https://img.shields.io/static/v1?label=Status%20on%20Termux&message=working&color=brightgreen&style=flat-square&logo=android) ![alttext](https://img.shields.io/static/v1?label=Status%20on%20WSL&message=ERROR&color=red&style=flat-square&logo=windowsterminal) ![alttext](https://img.shields.io/badge/Debian-WORKING-brightgreen?style=flat-square&logo=debian)
+![alttext](https://img.shields.io/static/v1?label=Status%20on%20Termux&message=working&color=brightgreen&style=flat-square&logo=android) ![alttext](https://img.shields.io/static/v1?label=Status%20on%20WSL&message=ERROR&color=red&style=flat-square&logo=windowsterminal) ![alttext](https://img.shields.io/badge/Debian-WORKING-brightgreen?style=flat-square&logo=debian) ![alttext](https://img.shields.io/badge/Arch_Linux-Stable-BrightGreen?style=flat&logo=archlinux)
 
 
 ---
@@ -32,7 +32,7 @@ Super-patch is a Samsung GSI to Super Builder, as partition tables are getting m
 
 ## Whats Up!
 
-Check update [notes](/updates/notes/0.8.md)
+Check update [notes](/updates/notes/0.9.md)
 
 ## Table Chart!
 
@@ -49,7 +49,7 @@ Check update [notes](/updates/notes/0.8.md)
 | GSI FILE DOWNLOAD                                          |  ❌  |      ❌      |
 | Multi Language                                             |  ❌  |      ❌      |
 
-Rou is very simple and sticks to its core purpose while super-patch make sure that the building process are mostly happen in Termux, with little intervention on the outside (soon)
+Rou is very simple and sticks to its core purpose while super-patch make sure that the building process are mostly happen in the terminal, with little intervention on the outside (soon)
 
 # Instructions
 
@@ -73,7 +73,20 @@ After that, run this:
 cd super-patch && chmod +x *.sh && ./builder.sh
 ```
 
-There will be a disclaimer which you can press enter, then the main menu shows up, you have options
+First, you will be greeted by this:
+
+![Alt text](/media_md/img/env.png)
+
+*Notes:*
+*For arch users, please avoid selecting the Arch Option unless you run `./builder.sh --inst_archlinux`* *because `paru` needs to be ran as user as first init, quite inconvinent tbh*
+
+After you selected the options there, there will be prompts to warn you about installation and such
+
+![Alt text](/media_md/img/are_u_debian.png)
+
+*Note: the script will crash itself as a failsafe to ensure that theres nothing else being done on a root session*
+
+After that, There will be a disclaimer which you can press enter, then the main menu shows up, you have options
 
 
 ![Alt text](media_md/img/image.png)
@@ -125,5 +138,8 @@ Android:
 - Termux 0.118 with ARM64 Device, 4GB of RAM and 128GB of Storage 
 
 Debian:
-- Coming Soon... 
+- Celeron N3060, with 128GB SSD, 4GB of RAM
+
+Arch Linux:
+- Celeron N3060, with 128GB SSD, 4GB of RAM
 

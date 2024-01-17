@@ -1,1 +1,4 @@
+# FOR FORK USERS, DO NOT ADD ANY DIRECTORY THAT HAS OVER 25mb Limit
 image_build/
+super.img 
+image_build

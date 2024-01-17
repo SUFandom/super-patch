@@ -1,115 +1,458 @@
 #!/bin/bash
+#
 
+if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then 
+    echo "Super-patch"
+    echo "v. 0.9 - devel_git"
+    echo ""
+    echo "Usage:"
+    echo "     When on Linux Desktop ENV, even WSL:"
+    echo "            sudo ./builder.sh [arg1]"
+    echo ""
+    echo "     When on Termux Android:"
+    echo "            ./builder.sh [arg1]"
+    echo ""
+    echo "Usage:"
+    echo "--help -h          Shows Help Page"
+    echo "--clear            Clear any cached files generated"
+    echo "                   by this script."
+    echo "                   Note that you need to run this on"
+    echo "                   Root if you are using a desktop"
+    echo "                   Environment"
+    echo "--inst_archlinux   Install dependencies for archlinux"  
+    echo "                   Dont run it alongside with sudo, as"
+    echo "                   paru requires the user to not run itself"
+    echo "                   as sudo"
+    echo ""
+    echo "If you have issues, visit https://t.me/a12schat"
+    exit 
+fi
 
+if [ "$1" == "--inst_archlinux" ]; then 
+    if [ $EUID != 0 ]; then 
+        chmod +x libs/archlinux/init
+        bash libs/archlinux/init
+        echo "OK"
+        exit
+    else 
+        echo "Dont run as root for this argument"
+        exit 1
+    fi
+fi
+
+if [ "$1" == "--clear" ] ; then 
+    case $(uname -m) in
+        x86_64)
+            if [ $EUID != 0 ]; then 
+                echo "[ERROR] You need root to run this"
+                exit 1
+            else 
+                echo "Wiping cache"
+                TMP="$HOME/cached_sp"
+                rm -rf "$TMP"
+                echo ""Done
+                exit 
+            fi
+            ;;
+        aarch64)
+            echo "Wiping cache"
+            TMP="$HOME/cached_sp"
+            rm -rf "$TMP"
+            echo ""Done
+            exit 
+            ;;
+        *)
+            echo "Could not determine your cpu"
+            exit 1
+            ;;
+    esac
+fi
 
 # GLOBAL VARIABLES (FOR INFO AND EYECANDY)
-VERSION_ID="0.8"
+VERSION_ID="0.9"
 STATUS="devel_git"
 
 if [ "$(pwd)" == "$(pwd | grep -a super-patch)" ]; then 
-    echo "1st phse gd"
+    echo "Init Good!"
 else 
     echo "Please run this script inside super-patch directory"
     exit 1
 fi 
-
-# ANOTHER GLOBAL VARIABLES (THAT ARE MUTABLE IF CONFIGED, NEXT VERSION)
-case $(uname -m) in
-    "x86_64") 
-        if [ $EUID != 0 ]; then 
-            echo "Please Run this as root"
-            exit 1
-        fi
-        if [[ "$(wsainfo > /dev/null)" ]]; then 
-            echo "WSL detected"
-            LAB="$(pwd)/image_build"
-            TMP="$HOME/cached_sp"
-            IS_SUDO="1"
-            CLEAR_UP="0"
-            mkdir "$TMP"
-            mkdir "$LAB"
-            if [ ! -f "$TMP/pass" ]; then
-                sudo cp -rf packages/amd64/* /bin
-                addmod=("lpadd" "lpdump" "lpmake" "lpunpack")
-                for elevate in "${addmod[@]}"; do 
-                    chmod +x /usr/bin/$elevate
-                done
-                sudo apt install android-sdk-libsparse-utils -y
-                sudo apt update --fix-missing -y
-                sudo apt install --fix-missing -y
-                sudo apt install android-sdk-libsparse-utils -y
-                sudo apt install p7zip-full lz4  -y 
-                touch "$TMP/pass"
-            fi 
-            echo "Since you are running this in desktop, the process will be happening inside the super-patch folder"
-            echo "Dir: $LAB"
-            echo "So please move the files there"
-            echo "If you are using WSA, you can check it on File Explorer, but we recommend you to run the Environment at WSL 2 for the tools to get working properly"
-            echo ""
-            echo ""
-            echo "Starting in 5 seconds..."
-            sleep 5
-        else 
-            echo "Real Debian Confirmed"
-            LAB="$(pwd)/image_build"
-            TMP="$HOME/cached_sp"
-            IS_SUDO="1"
-            CLEAR_UP="0"
-            mkdir "$TMP"
-            mkdir "$LAB"
-            if [ ! -f "$TMP/pass" ]; then
-                sudo cp -rf packages/amd64/* /bin
-                addmod=("lpadd" "lpdump" "lpmake" "lpunpack")
-                for elevate in "${addmod[@]}"; do 
-                    chmod +x /usr/bin/$elevate
-                done
-                sudo apt install android-sdk-libsparse-utils -y
-                sudo apt update --fix-missing -y
-                sudo apt install --fix-missing -y
-                sudo apt install android-sdk-libsparse-utils -y
-                sudo apt install p7zip-full lz4  -y 
-                touch "$TMP/pass"
-            fi 
-                clear
-                echo "Real Debian Moment Here!"
-                echo "The Environment the building will take place at:"
-                echo "$LAB"
-                echo "And the TMP will be at:"
-                echo "$TMP"
-                echo -ne "\n\nRemeber that..."
-                echo -ne "\nStarting in 5 seconds\n"
-                sleep 5
-        fi
+case $(uname -m) in 
+    aarch64)
+        echo "[OK!] CPU is: aarch64"
         ;;
-    "aarch64")
-        if [ "$EUID" == 0 ]; then
-            echo "Dont use Root Please"
+    x86_64)
+        if [ $EUID != 0 ]; then 
+            echo "[ERROR] Please Run this as root"
             exit 1
         fi
-        termux-setup-storage
-        ed=$?
-        if [ "$ed" == 0 ]; then 
-            dpkg -i packages/termux-arm64/*
-            LAB="$HOME/storage/shared/image_build"
-            TMP="$HOME/cached_sp"
-            CLEAR_UP="0"
-            IS_SUDO="0"
-            mkdir "$LAB"
-            mkdir "$TMP"
-        else 
-            echo "Setup can't continue if termux-setup-storage isnt working, also if youre running this other than termux, please download termux."
-            echo "If you're running this on WSA Arm, uhhh sorry, script dont support that"
-            echo "https://github.com/termux/termux-app"
-            exit 1
-        fi 
-        dpkg -i packages/termux-arm64/*
+        echo "[OK!] CPU is: x86_64"
         ;;
     *)
-        echo "Your Device isnt supported: $(uname -m)"
-        echo "This script only supports ARM64, and x86_64/AMD64"
+        echo "[ERROR] Unsupported CPU: $(uname -m)"
         exit 1
         ;;
-esac
+esac 
+
+function debian() {
+
+    dialog --backtitle "Debian/Ubuntu Env Confirmation" --title "[?] Are you sure?" \
+            --yes-label "I am sure" --no-label "Back" \
+            --yesno "Are you sure that you are running on Debian/Ubuntu Environment?\n\nWe will look for these packages: \n- APT\n- dpkg \n\nIf you don't have these in your system, then this session will crash and then you would have to relaunch again to continue" 0 0 
+    flag=$?
+    case $flag in 
+        0)
+            aptc=$(command -v apt 2>/dev/null)
+            dpkgc=$(command -v dpkg 2>/dev/null)
+            if [ -n "$aptc" ] && [ -n "$dpkgc" ]; then 
+                echo "Apt and Dpkg is OK"
+                echo "Installing necessary packages..."
+                sudo apt update 
+                sudo apt install --fix-missing -y
+                sudo apt install android-sdk-libsparse-utils p7zip-full lz4 -y
+                sudo apt update --fix-missing -y
+                sudo apt install --fix-missing -y
+                extbin --generic
+                touch "$TMP/pass"
+            else 
+                echo "APT and Dpkg failed to see, not a Debian/Ubuntu Distro"
+                exit 1
+            fi 
+            ;;
+        1)
+            distro_select
+            ;;
+    esac 
+}
+
+function arch_linux() {
+    # This strictly requires paru to be installed
+    # NOTE: I realized that paru hates root
+    clear
+    echo "Check the --help option as this option is now no longer available"
+    echo "due to paru hating to start as root and the installation would fail..."
+    echo "Otherwise, ignore the message"
+    extbin --generic
+    touch "$TMP/pass"
+    # dialog --backtitle "Arch Linux Env Confirmation" --title "[?] Are you sure?" \
+    #         --yes-label "I am sure" --no-label "Back" \
+    #         --yesno "Are you sure that you are running on Arch Linux Environment?\n\nWe will look for these packages: \n- pacman \n- paru\n\nIf you don't have these in your system, then this session will crash and then you would have to relaunch again to continue\n\nyay is no longer needed as if it breaks, it would spam to the server and causing you to be in blacklist temporarily, 24 hours..." 0 0 
+    # flag=$?
+    # case $flag in 
+    #     0)
+    #         pacmanc=$(command -v pacman 2>/dev/null)
+    #         paruc=$(command -v paru 2>/dev/null)
+    #         if [ -n "$pacmanc" ] && [ -n "$paruc" ]; then 
+    #             echo "Pacman and paru is OK"
+    #             echo "Installing necessary packages..."
+    #             sudo pacman -Syu
+    #             sudo pacman -Sy lz4 p7zip
+    #             paru -Syu
+    #             paru -Sy android-sdk-platform-tools
+    #             paru -Sy android-sdk
+    #             extbin --generic
+    #             touch "$TMP/pass"
+    #         else 
+    #             echo "Pacman and Paru failed to spot, not an Arch Linux Distro"
+    #             exit 1
+    #         fi 
+    #         ;;
+    #     1)
+    #         distro_select
+    #         ;;
+    # esac 
+}
+
+function android() {
+    dialog --backtitle "Termux Android Env Confirmation" --title "[?] Are you sure?" \
+            --yes-label "I am sure" --no-label "Back" \
+            --yesno "Are you sure that you are running on Termux Android Environment?\n\nWe will look for these packages: \n- APT\n- dpkg \n\nIf you don't have these in your system, then this session will crash and then you would have to relaunch again to continue" 0 0
+    flag=$?
+    case $flag in 
+        0)
+            aptc=$(command -v apt 2>/dev/null)
+            dpkgc=$(command -v dpkg 2>/dev/null)
+            if [ -n "$aptc" ] && [ -n "$dpkgc" ]; then 
+                echo "Apt and Dpkg is OK"
+                echo "Installing necessary packages..."
+                sudo apt update 
+                sudo apt install --fix-missing -y
+                sudo apt install android-sdk-libsparse-utils p7zip-full lz4 -y
+                sudo apt update --fix-missing -y
+                sudo apt install --fix-missing -y
+                extbin --android
+                touch "$TMP/pass"
+            else 
+                echo "APT and Dpkg failed to see, not running Termux on Android..."
+                exit 1
+            fi 
+            ;;
+        1)
+            distro_select
+            ;;
+    esac 
+}
+
+function wsa() {
+    if [[ ! "$(wsainfo >/dev/null)" ]]; then
+    dialog --backtitle "Debian WSA Env Confirmation" --title "[?] Are you sure?" \
+            --yes-label "I am sure" --no-label "Back" \
+            --yesno "Are you sure that you are running on Debian on a Windows Subsystem for Android Environment?\n\nWe will look for these packages: \n- APT\n- dpkg \n\nIf you don't have these in your system, then this session will crash and then you would have to relaunch again to continue" 0 0 
+    flag=$?
+    case $flag in 
+        0)
+            aptc=$(command -v apt 2>/dev/null)
+            dpkgc=$(command -v dpkg 2>/dev/null)
+            if [ -n "$aptc" ] && [ -n "$dpkgc" ]; then 
+                echo "Apt and Dpkg is OK"
+                echo "Installing necessary packages..."
+                sudo apt update 
+                sudo apt install --fix-missing -y
+                sudo apt install android-sdk-libsparse-utils p7zip-full lz4 -y
+                sudo apt update --fix-missing -y
+                sudo apt install --fix-missing -y
+                touch "$TMP/pass"
+                extbin --generic
+            else 
+                echo "APT and Dpkg failed to see, not running Debian WSA"
+                exit 1
+            fi 
+            ;;
+        1)
+            distro_select
+            ;;
+    esac 
+    else 
+        distro_select
+    fi
+}
+
+function none_e() {
+    clear
+    echo "Sorry, you cant use this script on an unsupported script"
+    exit 1
+}
+
+function distro_select() {
+    distromenu=$(dialog --backtitle "I want to know this environment" \
+                --title "What linux this is?" \
+                --menu "This script wants to know what linux this is, so it can try calling out the package manager of the current env" 0 0 0 \
+                "Debian/Ubuntu" "Debian & Ubuntu Latest, NOT WSA" \
+                "Arch Linux" "Arch Linux Latest, NOT WSA" \
+                "Termux Android" "Android has linux so that counts??" \
+                "WSA Debian" "Windows subsystem for Linux (Debian ONLY)" \
+                "None" "None of the above" \
+                2>&1 > /dev/tty)
+    fetch=$?
+    case $fetch in
+        1)
+            clear
+            exit 1
+            ;;
+        255)
+            exit 255
+            ;;
+        9)
+            exit 9
+            ;;
+    esac
+    case "$distromenu" in 
+        "Debian/Ubuntu")
+            debian
+            ;;
+        "Arch Linux")
+            arch_linux
+            ;;
+        "Termux Android")
+            android 
+            ;;
+        "WSA Debian")
+            wsa 
+            ;;
+        "None")
+            none_e
+            ;;
+    esac 
+}
+
+function extbin() {
+    case $1 in 
+        "--android")
+            if [ ! -f "$TMP/pass" ]; then
+                sudo cp -rf packages/termux-arm64/* /data/data/com.termux/files/usr/bin/
+                add_tools=("lpadd" "lpdump" "lpmake" "lpunpack")
+                for util in "${add_tools[@]}" ; do 
+                    chmod +x /usr/bin/$util
+                done 
+                # distro_select
+            else 
+                echo "No need to set up"
+            fi
+            ;;
+        "--generic")
+            if [ ! -f "$TMP/pass" ]; then
+                sudo cp -rf packages/amd64/* /usr/bin/
+                add_tools=("lpadd" "lpdump" "lpmake" "lpunpack")
+                for util in "${add_tools[@]}" ; do 
+                    chmod +x /usr/bin/$util
+                done 
+                # distro_select
+            else 
+                echo "No need to set up"
+            fi
+            ;;
+        *)
+            echo "[ERROR] Can't Understand: $1"
+            echo "Abruptly exiting..."
+            exit 1 # Literally exit for failsafes
+            ;;
+    esac
+}
+
+function linux () {
+    if [ "$(uname -m)" == "x86_64" ]; then 
+        if [ $EUID != 0 ]; then 
+            echo "You need root to proceed..."
+        fi
+    fi
+    clear
+    echo "Linux Confirmed"
+    echo "Setting variables..."
+    LAB="$(pwd)/image_build"
+    TMP="$HOME/cached_sp"
+    if [ $EUID != 0 ]; then 
+        IS_SUDO="0"
+    else 
+        IS_SUDO="1"
+    fi
+    CLEAR_UP="0"
+    mkdir "$LAB"
+    mkdir "$TMP"
+    # Realized this line of code will not work on android, check policy
+    # This will be implemented separately
+    # if [ ! -f "$TMP/pass" ]; then
+    #     sudo cp -rf packages/amd64/* /bin
+    #     add_tools=("lpadd" "lpdump" "lpmake" "lpunpack")
+    #     for util in "${add_tools[@]}" ; do 
+    #         chmod +x /usr/bin/$util
+    #     done 
+    #     distro_select
+    # else 
+    #     echo "No need to set up"
+    # fi
+    if [ ! -e $TMP/pass ]; then 
+        distro_select
+    fi
+    echo "Variables set, and components are ready to go..."
+    echo "Starting on 5 seconds"
+    sleep 5 
+}
+
+
+
+
+
+
+# This area is in rework
+
+# # ANOTHER GLOBAL VARIABLES (THAT ARE MUTABLE IF CONFIGED, NEXT VERSION)
+# case $(uname -m) in
+#     "x86_64") 
+#         if [ $EUID != 0 ]; then 
+#             echo "Please Run this as root"
+#             exit 1
+#         fi
+#         if [[ "$(wsainfo > /dev/null)" ]]; then 
+#             echo "WSL detected"
+#             LAB="$(pwd)/image_build"
+#             TMP="$HOME/cached_sp"
+#             IS_SUDO="1"
+#             CLEAR_UP="0"
+#             mkdir "$TMP"
+#             mkdir "$LAB"
+#             if [ ! -f "$TMP/pass" ]; then
+#                 sudo cp -rf packages/amd64/* /bin
+#                 addmod=("lpadd" "lpdump" "lpmake" "lpunpack")
+#                 for elevate in "${addmod[@]}"; do 
+#                     chmod +x /usr/bin/$elevate
+#                 done
+#                 sudo apt install android-sdk-libsparse-utils -y
+#                 sudo apt update --fix-missing -y
+#                 sudo apt install --fix-missing -y
+#                 sudo apt install android-sdk-libsparse-utils -y
+#                 sudo apt install p7zip-full lz4  -y 
+#                 touch "$TMP/pass"
+#             fi 
+#             echo "Since you are running this in desktop, the process will be happening inside the super-patch folder"
+#             echo "Dir: $LAB"
+#             echo "So please move the files there"
+#             echo "If you are using WSA, you can check it on File Explorer, but we recommend you to run the Environment at WSL 2 for the tools to get working properly"
+#             echo ""
+#             echo ""
+#             echo "Starting in 5 seconds..."
+#             sleep 5
+#         else 
+#             echo "Real Debian Confirmed"
+#             LAB="$(pwd)/image_build"
+#             TMP="$HOME/cached_sp"
+#             IS_SUDO="1"
+#             CLEAR_UP="0"
+#             mkdir "$TMP"
+#             mkdir "$LAB"
+#             if [ ! -f "$TMP/pass" ]; then
+#                 sudo cp -rf packages/amd64/* /bin
+#                 addmod=("lpadd" "lpdump" "lpmake" "lpunpack")
+#                 for elevate in "${addmod[@]}"; do 
+#                     chmod +x /usr/bin/$elevate
+#                 done
+#                 sudo apt install android-sdk-libsparse-utils -y
+#                 sudo apt update --fix-missing -y
+#                 sudo apt install --fix-missing -y
+#                 sudo apt install android-sdk-libsparse-utils -y
+#                 sudo apt install p7zip-full lz4  -y 
+#                 touch "$TMP/pass"
+#             fi 
+#                 clear
+#                 echo "Real Debian Moment Here!"
+#                 echo "The Environment the building will take place at:"
+#                 echo "$LAB"
+#                 echo "And the TMP will be at:"
+#                 echo "$TMP"
+#                 echo -ne "\n\nRemeber that..."
+#                 echo -ne "\nStarting in 5 seconds\n"
+#                 sleep 5
+#         fi
+#         ;;
+#     "aarch64")
+#         if [ "$EUID" == 0 ]; then
+#             echo "Dont use Root Please"
+#             exit 1
+#         fi
+#         termux-setup-storage
+#         ed=$?
+#         if [ "$ed" == 0 ]; then 
+#             dpkg -i packages/termux-arm64/*
+#             LAB="$HOME/storage/shared/image_build"
+#             TMP="$HOME/cached_sp"
+#             CLEAR_UP="0"
+#             IS_SUDO="0"
+#             mkdir "$LAB"
+#             mkdir "$TMP"
+#         else 
+#             echo "Setup can't continue if termux-setup-storage isnt working, also if youre running this other than termux, please download termux."
+#             echo "If you're running this on WSA Arm, uhhh sorry, script dont support that"
+#             echo "https://github.com/termux/termux-app"
+#             exit 1
+#         fi 
+#         dpkg -i packages/termux-arm64/*
+#         ;;
+#     *)
+#         echo "Your Device isnt supported: $(uname -m)"
+#         echo "This script only supports ARM64, and x86_64/AMD64"
+#         exit 1
+#         ;;
+# esac
 
 #TMP="$HOME/cached_sp"
 
@@ -1057,6 +1400,6 @@ function image_build_wipe {
     menu_man
 }
 
-
+linux
 disclaimer
 

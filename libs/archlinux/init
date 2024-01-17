@@ -1,0 +1,15 @@
+#!/bin/bash 
+
+
+echo "Running the script..."
+echo "Installing certain packages:"
+echo "p7zip lz4 android-sdk-platform-tools android-sdk"
+echo "Installation can take long, depending on the internet connection and what disk type you using (HDD is slow than SSD)" 
+sudo pacman -Sy p7zip lz4
+paru -Sy android-sdk-platform-tools android-sdk
+
+# sudo touch /root/cached_sp/pass # Presumably root is located at /root
+# Also decide to comment this because ehem... uhh no file injtr
+# will fix at 1.0
+
+echo "Done, you can now launch the script again"
