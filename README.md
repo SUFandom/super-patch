@@ -13,7 +13,7 @@ Badges:
 
 ---
 
-This Script Only works on termux (*and prob debian 12*) for now
+This Script works on Debian/Ubuntu, Termux, and Arch Linux
 
 
 ## Credits due who supported the project:
