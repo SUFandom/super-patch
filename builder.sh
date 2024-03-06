@@ -3,7 +3,7 @@
 
 if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then 
     echo "Super-patch"
-    echo "v. 0.9 - devel_git"
+    echo "v. 0.9.1 - devel_git"
     echo ""
     echo "Usage:"
     echo "     When on Linux Desktop ENV, even WSL:"
@@ -69,7 +69,7 @@ if [ "$1" == "--clear" ] ; then
 fi
 
 # GLOBAL VARIABLES (FOR INFO AND EYECANDY)
-VERSION_ID="0.9"
+VERSION_ID="0.9.1"
 STATUS="devel_git"
 
 if [ "$(pwd)" == "$(pwd | grep -a super-patch)" ]; then 
@@ -280,11 +280,7 @@ function extbin() {
     case $1 in 
         "--android")
             if [ ! -f "$TMP/pass" ]; then
-                sudo cp -rf packages/termux-arm64/* /data/data/com.termux/files/usr/bin/
-                add_tools=("lpadd" "lpdump" "lpmake" "lpunpack")
-                for util in "${add_tools[@]}" ; do 
-                    chmod +x /usr/bin/$util
-                done 
+                apt install ./packages/termux-arm64/*
                 # distro_select
             else 
                 echo "No need to set up"
