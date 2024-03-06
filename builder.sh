@@ -176,11 +176,11 @@ function android() {
             if [ -n "$aptc" ] && [ -n "$dpkgc" ]; then 
                 echo "Apt and Dpkg is OK"
                 echo "Installing necessary packages..."
-                sudo apt update 
-                sudo apt install --fix-missing -y
-                sudo apt install android-sdk-libsparse-utils p7zip-full lz4 -y
-                sudo apt update --fix-missing -y
-                sudo apt install --fix-missing -y
+                apt update 
+                apt install --fix-missing -y
+                apt install lz4 -y
+                apt update --fix-missing -y
+                apt install --fix-missing -y
                 extbin --android
                 touch "$TMP/pass"
             else 
