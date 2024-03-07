@@ -8,7 +8,7 @@ Badges:
 
 ![alttext](https://img.shields.io/static/v1?label=status%20on%20git&message=devel(Developement)&color=red&style=flat-square)
 
-![alttext](https://img.shields.io/static/v1?label=Status%20on%20Termux&message=working&color=brightgreen&style=flat-square&logo=android) ![alttext](https://img.shields.io/static/v1?label=Status%20on%20WSL&message=ERROR&color=red&style=flat-square&logo=windowsterminal) ![alttext](https://img.shields.io/badge/Debian-WORKING-brightgreen?style=flat-square&logo=debian) ![alttext](https://img.shields.io/badge/Arch_Linux-Stable-BrightGreen?style=flat&logo=archlinux)
+![alttext](https://img.shields.io/static/v1?label=Status%20on%20Termux&message=working&color=brightgreen&style=flat-square&logo=android) ![alttext](https://img.shields.io/static/v1?label=Status%20on%20WSL&message=ERROR&color=red&style=flat-square&logo=windowsterminal) ![alttext](https://img.shields.io/badge/Debian-WORKING-brightgreen?style=flat-square&logo=debian) ![alttext](https://img.shields.io/badge/Arch_Linux-Unstable-red?style=flat&logo=archlinux)
 
 
 ---
@@ -52,6 +52,11 @@ Check update [notes](/updates/notes/0.9.md)
 Rou is very simple and sticks to its core purpose while super-patch make sure that the building process are mostly happen in the terminal, with little intervention on the outside (soon)
 
 # Instructions
+
+### For Arch Linux users and/or its relations
+
+Before proceeding to run `builder.sh`, please try to run `arch_dependencies_install.sh` to continue or else your builds wont work
+
 
 Well you want to build a Super for your Samsung Device, well this script got you!
 
