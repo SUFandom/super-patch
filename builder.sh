@@ -3,7 +3,7 @@
 
 if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then 
     echo "Super-patch"
-    echo "v. 0.9.1 - devel_git"
+    echo "v. 0.9.2 - devel_git"
     echo ""
     echo "Usage:"
     echo "     When on Linux Desktop ENV, even WSL:"
@@ -69,7 +69,7 @@ if [ "$1" == "--clear" ] ; then
 fi
 
 # GLOBAL VARIABLES (FOR INFO AND EYECANDY)
-VERSION_ID="0.9.1"
+VERSION_ID="0.9.2"
 STATUS="devel_git"
 
 if [ "$(pwd)" == "$(pwd | grep -a super-patch)" ]; then 
@@ -941,7 +941,7 @@ function build_file {
         if [ -e "$LAB/product.img" ]; then
             mdt "Product already present"
             #mdt "Warning: If the patching didn't work, you can ask the group for help"
-            if [ "$(ls -nl $LAB/product.img | awk '{print $5}')" -gt 4900 ]; then 
+            if [ "$(ls -nl $LAB/product.img | awk '{print $5}')" -gt 6000 ]; then 
                 mdt "Replacing Product.img as it identifies to be a potential stock Product, with universal product.img"
                 cp -rf fake-props/product.img $LAB/product.img
             else 
@@ -955,13 +955,13 @@ function build_file {
         fi 
         mdt "Starting Building"
         mdt "You may see header errors, but that just mean that its doing something right..."
-        lpmake --metadata-size 65536 --super-name super --metadata-slots 2 --device super:$(<$TMP/super_size.txt) --group main:$(<$TMP/super_main.txt) --partition system:readonly:$(ls -nl $LAB/system.img | awk '{print $5}'):main --image system=$LAB/system.img --partition vendor:readonly:$(ls -nl $LAB/vendor.img | awk '{print $5}'):main --image vendor=$LAB/vendor.img --partition product:readonly:$(ls -nl $LAB/product.img | awk '{print $5}'):main --image product=$LAB/product.img --partition odm:readonly:$(ls -nl $LAB/odm.img | awk '{print $5}'):main --image odm=$LAB/odm.img --sparse --output super.img
+        lpmake --metadata-size 65536 --super-name super --metadata-slots 2 --device super:$(<$TMP/super_size.txt) --group main:$(<$TMP/super_main.txt) --partition system:readonly:$(ls -nl $LAB/system.img | awk '{print $5}'):main --image system=$LAB/system.img --partition vendor:readonly:$(ls -nl $LAB/vendor.img | awk '{print $5}'):main --image vendor=$LAB/vendor.img --partition product:readonly:$(ls -nl $LAB/product.img | awk '{print $5}'):main --image product=$LAB/product.img --partition odm:readonly:$(ls -nl $LAB/odm.img | awk '{print $5}'):main --image odm=$LAB/odm.img --sparse --output $LAB/super.img
         mdt "OK!"
     else 
         if [ -e "$LAB/product.img" ]; then 
             mdt "Product already Present"
             #mdt "If patching didn't work, then you can ask the group for help"
-            if [ "$(ls -nl $LAB/product.img | awk '{print $5}')" -gt 4900 ]; then 
+            if [ "$(ls -nl $LAB/product.img | awk '{print $5}')" -gt 6000 ]; then 
                 mdt "Replacing Product.img as it identifies to be a potential stock Product, with universal product.img"
                 cp -rf fake-props/product.img $LAB/product.img
             else 
@@ -983,7 +983,7 @@ function build_file {
         fi 
         mdt "Starting Building"
         mdt "You may see header errors, but that's just mean that its doing something right"
-        lpmake --metadata-size 65536 --super-name super --metadata-slots 2 --device super:$(<$TMP/super_size.txt) --group main:$(<$TMP/super_main.txt) --partition system:readonly:$(ls -nl $LAB/system.img | awk '{print $5}'):main --image system=$LAB/system.img --partition vendor:readonly:$(ls -nl $LAB/vendor.img | awk '{print $5}'):main --image vendor=$LAB/vendor.img --partition product:readonly:$(ls -nl $LAB/product.img | awk '{print $5}'):main --image product=$LAB/product.img --partition system_ext:readonly:$(ls -nl $LAB/system_ext.img | awk '{print $5}'):main --image system_ext=$LAB/system_ext.img --sparse --output super.img
+        lpmake --metadata-size 65536 --super-name super --metadata-slots 2 --device super:$(<$TMP/super_size.txt) --group main:$(<$TMP/super_main.txt) --partition system:readonly:$(ls -nl $LAB/system.img | awk '{print $5}'):main --image system=$LAB/system.img --partition vendor:readonly:$(ls -nl $LAB/vendor.img | awk '{print $5}'):main --image vendor=$LAB/vendor.img --partition product:readonly:$(ls -nl $LAB/product.img | awk '{print $5}'):main --image product=$LAB/product.img --partition system_ext:readonly:$(ls -nl $LAB/system_ext.img | awk '{print $5}'):main --image system_ext=$LAB/system_ext.img --sparse --output $LAB/super.img
         fi 
 }
 
@@ -992,6 +992,8 @@ function build_normal_cmp {
     mdt "Starting : build_file"
     build_file
     mdt "It seems process : build_file has completed the task"
+    mdt "Proceeding..."
+    sleep 5
     file_name=$(dialog --backtitle "SAMSUNG GSI TO SUPER - $VERSION_ID - $STATUS" --title "Name-a-file" --inputbox "Enter what you want to name this file: \n\nREMEBER: NO SPACES, FILE EXTENSIONS AND SLASHES AND IF IT BREAKS ITS YOUR FAULT! \nGoing back resets to default name\n\nDefault:" 0 0 "exported_super" 2>&1 >/dev/tty)
     if [ -z "$file_name" ]; then
         mdt "No value detected, using default name"
@@ -999,27 +1001,58 @@ function build_normal_cmp {
     else 
         mdt "Name: $file_name"
     fi
-    mdt "Calling tar to pack"
-    #mdt "BTW renaming package feature is coming soon"
-    tar -cvf $LAB/$file_name.tar super.img
-    mdt "Done"
-    mdt "Cleaning..."
-    rm -rf $LAB/super.img
-    mdt "Checking the tar file"
-    if [ "$(ls -nl $LAB/$file_name.tar | awk '{print $5}')" -lt 100000 ]; then 
-        mdt "ONO!"
-        mdt "The tar file size is not right!"
-        mdt "Error: B_NT_25"
-        mdt "Returning in 5 seconds"
-        sleep 5
-        menu_man "Error: B_NT_25"
-    else 
-        mdt "YES! IT IS DONE"
-        mdt "File is completed"
-        mdt "File was located in : $LAB/$file_name.tar, now ready to flash..."
-        mdt "Going back to menu in 5 seconds"
-        menu_man
+    recovery_insert_main
+    
+    if [[ $REC_RESPONSE == 1 ]]; then
+        mdt "Continuing this"
+        mdt "Calling tar to pack"
+        #mdt "BTW renaming package feature is coming soon"
+        tar -cvf $LAB/$file_name.tar $LAB/super.img
+        mdt "Done"
+        mdt "Cleaning..."
+        rm -rf $LAB/super.img
+        mdt "Checking the tar file"
+        if [ "$(ls -nl $LAB/$file_name.tar | awk '{print $5}')" -lt 100000 ]; then 
+            mdt "ONO!"
+            mdt "The tar file size is not right!"
+            mdt "Error: B_NT_25"
+            mdt "Returning in 5 seconds"
+            sleep 5
+            menu_man "Error: B_NT_25 - Invalid expected size or you put spaces which you shouldn't in the first place"
+        else 
+            mdt "YES! IT IS DONE"
+            mdt "File is completed"
+            mdt "File was located in : $LAB/$file_name.tar, now ready to flash..."
+            mdt "Going back to menu in 5 seconds"
+            menu_man
+        fi
     fi
+    if [[ $REC_RESPONSE == 0 ]]; then
+        case $RECOVERY_FILE in 
+            "twrp_a12s")
+                mdt "Continuing this"
+                mdt "Calling tar to pack"
+                #mdt "BTW renaming package feature is coming soon"
+                tar -cvf $LAB/$file_name.tar super.img $LOCATION_RECOVERY
+                mdt "Done"
+                mdt "Cleaning..."
+                rm -rf $LAB/super.img
+                mdt "Checking the tar file"
+                if [ "$(ls -nl $LAB/$file_name.tar | awk '{print $5}')" -lt 100000 ]; then 
+                    mdt "ONO!"
+                    mdt "The tar file size is not right!"
+                    mdt "Error: B_NT_25"
+                    mdt "Returning in 5 seconds"
+                    sleep 5
+                    menu_man "Error: B_NT_25 - Invalid expected size or you put spaces which you shouldn't in the first place"
+                else 
+                    mdt "YES! IT IS DONE"
+                    mdt "File is completed"
+                    mdt "File was located in : $LAB/$file_name.tar, now ready to flash..."
+                    mdt "Going back to menu in 5 seconds"
+                    menu_man
+                fi
+
 }
 
 function build_xz_cmp {
@@ -1395,6 +1428,52 @@ function image_build_wipe {
     msgbox "Done" "Clean Done"
     menu_man
 }
+
+function recovery_insert_main () {
+    recovery_menu=$(dialog \
+                    --backtitle "SAMSUNG GSI TO SUPER - $VERSION_ID - $STATUS" \
+                    --title "Recovery Option" \
+                    --menu "Inject Recovery to the archive\n\nInsert Recoveries at your disposal\n\n\nOthers will be added soon\n\nExiting this menu will not insert custom recovery either" 0 0 0\
+                    "No Custom Recovery" "No Custom Recovery" \
+                    "TWRP - Galaxy A12s Exynos" "TWRP Galaxy A12s for Exynos 850 Handsets" \
+                    2>&1 >/dev/tty)
+    ervar=$?
+    case $ervar in
+        1)
+            clear
+            mdt "No recovery will be injected"
+            REC_RESPONSE=1
+            ;;
+    esac 
+    case $recovery_menu in 
+        "No Custom Recovery")
+            clear
+            mdt "No recovery will be injected"
+            REC_RESPONSE=1
+            ;;
+        "TWRP - Galaxy A12s Exynos")
+            clear 
+            twrp_galaxy_a12s
+            ;;
+    esac
+}
+
+function twrp_galaxy_a12s() {
+    yesno "Are you sure you want:\n\nTWRP for Galaxy A12s for your device?\n\nWARNING:\nTHIS RECOVERY ONLY SUPPORTS GALAXY A12s U9 and UA, THIS CAN CAUSE NEAR IRREVERSIBLE DAMAGE IF YOU WANT THIS RECOVERY ON A DEVICE THAT DOESN'T SUPPORT IT!, ALTHO MORE ITERATIONS ARE COMING SOON..."
+    local ervar=$?
+    case $ervar in 
+        0)
+            REC_RESPONSE=0
+            RECOVERY_FILE="twrp_a12s"
+            LOCATION_RECOVERY="recoveries/twrp/a12s_exynos/recovery.img"
+            ;;
+        1)
+            recovery_insert_main
+            ;;
+    esac
+}
+
+
 
 linux
 disclaimer
