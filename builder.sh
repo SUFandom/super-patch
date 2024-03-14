@@ -69,8 +69,8 @@ if [ "$1" == "--clear" ] ; then
 fi
 
 # GLOBAL VARIABLES (FOR INFO AND EYECANDY)
-VERSION_ID="0.9.2"
-STATUS="devel_git"
+VERSION_ID="0.9.2-rc1"
+STATUS="devel_git_release_candidate"
 
 if [ "$(pwd)" == "$(pwd | grep -a super-patch)" ]; then 
     echo "Init Good!"
