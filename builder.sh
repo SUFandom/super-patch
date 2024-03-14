@@ -1433,7 +1433,7 @@ function recovery_insert_main () {
     recovery_menu=$(dialog \
                     --backtitle "SAMSUNG GSI TO SUPER - $VERSION_ID - $STATUS" \
                     --title "Recovery Option" \
-                    --menu "Inject Recovery to the archive\n\nInsert Recoveries at your disposal\n\n\nOthers will be added soon\n\nExiting this menu will not insert custom recovery either" 0 0 0\
+                    --menu "THIS FEATURE WAS WORKING IN 0.9.2, BUT WAS REMOVED DUE TO SAVING TIME TO CLONE + LESS ISSUE, SUGGEST TO CANCEL THE PROCESS\n\n\n\nInject Recovery to the archive\n\nInsert Recoveries at your disposal\n\n\nOthers will be added soon\n\nExiting this menu will not insert custom recovery either" 0 0 0\
                     "No Custom Recovery" "No Custom Recovery" \
                     "TWRP - Galaxy A12s Exynos" "TWRP Galaxy A12s for Exynos 850 Handsets" \
                     2>&1 >/dev/tty)
