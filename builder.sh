@@ -3,7 +3,7 @@
 
 if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then 
     echo "Super-patch"
-    echo "v. 0.9.2 - devel_git"
+    echo "v. 0.9.3 - devel_git"
     echo ""
     echo "Usage:"
     echo "     When on Linux Desktop ENV, even WSL:"
@@ -69,7 +69,7 @@ if [ "$1" == "--clear" ] ; then
 fi
 
 # GLOBAL VARIABLES (FOR INFO AND EYECANDY)
-VERSION_ID="0.9.2-rc1"
+VERSION_ID="0.9.3-hfx"
 STATUS="devel_git_release_candidate"
 
 if [ "$(pwd)" == "$(pwd | grep -a super-patch)" ]; then 
@@ -1052,7 +1052,9 @@ function build_normal_cmp {
                     mdt "Going back to menu in 5 seconds"
                     menu_man
                 fi
-
+                ;;
+        esac
+    fi
 }
 
 function build_xz_cmp {
