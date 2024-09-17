@@ -13,9 +13,20 @@ case $1 in
                     echo "Exec Extract"
                     mv "$3" "$(realpath .)/imgbuild/$(basename "$3")"
                     echo "Extracting $(basename $3)"
-                    tar -xvf "$(realpath .)/imgbuild/$(basename "$3")"  -C "$(realpath .)/imgbuild/"
-                    shopt -s extglob
-                    rm -vrf -a "$(realpath .)/imgbuild/!(super.img.lz4|super.img|super.img.raw|super_raw.img)"
+                    tar -xvf "$(realpath .)/imgbuild/$(basename "$3")"  -C "$(realpath .)/imgbuild/" super.img.lz4
+                    if [ "$?" -ne "0" ]; then
+                        # Oops, wrong file, probably file was older variant
+                        tar -xvf "$(realpath .)/imgbuild/$(basename "$3")"  -C "$(realpath .)/imgbuild/" super.img
+                    fi
+                    for remove in "$(realpath .)/imgbuild/"*; do
+                        case "$(basename $remove)" in
+                            super.img.lz4/super.img)
+                                ;;
+                            *)
+                                rm -rfv $remove
+                                ;;
+                        esac
+                    done
                     if [ -e "$(realpath .)/imgbuild/super.img.lz4" ]; then
                         lz4 -c -d "$(realpath .)/imgbuild/super.img.lz4" > "$(realpath .)/imgbuild/super.img"
                     fi
