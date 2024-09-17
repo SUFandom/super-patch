@@ -18,20 +18,12 @@ case $1 in
                         # Oops, wrong file, probably file was older variant
                         tar -xvf "$(realpath .)/imgbuild/$(basename "$3")"  -C "$(realpath .)/imgbuild/" super.img
                     fi
-                    for remove in "$(realpath .)/imgbuild/"*; do
-                        case "$(basename $remove)" in
-                            super.img.lz4/super.img)
-                                ;;
-                            *)
-                                rm -rfv $remove
-                                ;;
-                        esac
-                    done
                     if [ -e "$(realpath .)/imgbuild/super.img.lz4" ]; then
                         lz4 -c -d "$(realpath .)/imgbuild/super.img.lz4" > "$(realpath .)/imgbuild/super.img"
                     fi
                     echo "Done extracting $(basename $3)"
                     echo "Preparing to raw the simg"
+                    sleep 5
                     simg2img $(realpath imgbuild)/super.img $(realpath imgbuild)/super_raw.img
                     if [ "$(ls -nl "$(realpath imgbuild)/super_raw.img" | awk '{print $5}')" -lt 100000 ]; then
                         echo "Super_raw is unreasonably tiny..."
@@ -40,12 +32,14 @@ case $1 in
                         lpunpack $(realpath imgbuild)/super.img $(realpath imgbuild)/
                         echo "Done"
                         echo "End extract.sh"
+                        sleep 5
                         exit 0
                     else
                         echo "Super raw, OK"
                         lpunpack $(realpath imgbuild)/super_raw.img $(realpath imgbuild)/
                         echo "Done"
                         echo "End extract.sh"
+                        sleep 5
                         exit 0
                     fi
                 else
