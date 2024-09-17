@@ -443,6 +443,7 @@ def inject_menupage():
                         os.system('clear')
                         print("Can't see the ranger command in your system... Selection aborted")
                         time.sleep(5)
+                refresh_variable()
             else:
                 if os.path.isfile("/usr/bin/ranger"):
                     try:
@@ -452,6 +453,7 @@ def inject_menupage():
                         os.system('clear')
                         print("Can't see the ranger command in your system... Selection aborted")
                         time.sleep(5)
+                refresh_variable()
             if SYSIMG_SELECT != "Not Present":
                 try:
                     shutil.copy2({SYSIMG_SELECT}, f"{TARGET_DIR}/system.img")
@@ -487,6 +489,7 @@ def inject_menupage():
                         os.system('clear')
                         print("Can't see the ranger command in your system... Selection aborted")
                         time.sleep(5)
+                refresh_variable()
             else:
                 if os.path.isfile("/usr/bin/ranger"):
                     try:
@@ -496,6 +499,7 @@ def inject_menupage():
                         os.system('clear')
                         print("Can't see the ranger command in your system... Selection aborted")
                         time.sleep(5)
+                refresh_variable()
             if SYSIMG_SELECT != "Not Present":
                 try:
                     # Decompress from XZ
@@ -504,6 +508,10 @@ def inject_menupage():
                             shutil.copyfileobj(f_in, f_out)
                 except FileNotFoundError:
                     print(f"File {SYSIMG_SELECT} not found")
+                    time.sleep(5)
+                except lzma.LZMAError as e:
+                    print(f"LZMA error: {e}")
+                    time.sleep(5)
                 except Exception as e:
                     print(f"ERROR: {e}")
                     time.sleep(5)
