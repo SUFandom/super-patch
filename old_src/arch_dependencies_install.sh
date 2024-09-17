@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-bash libs/archlinux/init
+bash old_src/libs/archlinux/init

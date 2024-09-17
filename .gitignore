@@ -5,3 +5,8 @@ image_build
 test.sh
 venv
 cached
+test.py
+cached_proc
+image_build
+imgbuild
+meta-data

@@ -674,7 +674,7 @@ function extract_super_img {
                     lpunpack $LAB/super.img $LAB/
                     mdt "Done"
                     gsi_select
-                else 
+                else  
                     mdt "Removing Super.img since we have super_raw"
                     rm -rf $LAB/super.img
                     mdt "Super.img removed"
@@ -1259,23 +1259,23 @@ function wikiflash {
                 esac 
                 case $wikimenu in
                     "AP")
-                        msgbox "AP" "$(cat docs/ap/main.txt)"
+                        msgbox "AP" "$(cat old_src/docs/ap/main.txt)"
                         wikiflash
                         ;;
                     "Build Super")
-                        msgbox "Super" "$(cat docs/how_2_build/main.txt)"
+                        msgbox "Super" "$(cat old_src/docs/how_2_build/main.txt)"
                         wikiflash
                         ;;
                     "GSI How")
-                        msgbox "GSI How" "$(cat docs/gsi/main.txt)"
+                        msgbox "GSI How" "$(cat old_src/docs/gsi/main.txt)"
                         wikiflash
                         ;;
                     "GSI Where")
-                        msgbox "GSI Where" "$(cat docs/gsi/link.txt)"
+                        msgbox "GSI Where" "$(cat old_src/docs/gsi/link.txt)"
                         wikiflash
                         ;;
                     "Super")
-                        msgbox "Super" "$(cat docs/super/main.txt)"
+                        msgbox "Super" "$(cat old_src/docs/super/main.txt)"
                         wikiflash
                         ;;
                 esac
@@ -1410,7 +1410,7 @@ function about {
 
 function disclaimer {
     export DIALOGRC="libs/dialog-rc/disclaimer.thm"
-    yesno "$(cat docs/disclaimer)"
+    yesno "$(cat old_src/docs/disclaimer)"
     local ervar=$?
     unset DIALOGRC
     case $ervar in 
