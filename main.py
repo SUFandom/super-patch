@@ -1,12 +1,54 @@
 #!/usr/bin/env python3
+# I'll clean this code when i have time
+# Google has been fking my arse very much
 
 import sys
-import subprocess
 import shutil
 import os
 import time
-from simple_term_menu import TerminalMenu
+
 import lzma
+import platform
+
+# Checkpoint
+ANDROID_TARGET_VARIABLE = "ANDROID_ROOT"
+if ANDROID_TARGET_VARIABLE in os.environ:
+    IS_ANDROID_SYSTEM = True
+    LANDING = "/data/data/com.termux/files/home"
+else:
+    IS_ANDROID_SYSTEM = False
+    LANDING = "/"
+
+if ANDROID_TARGET_VARIABLE in os.environ:
+    if os.path.isfile(".nt"):
+        print("PASS")
+    else:
+        os.system("apt update")
+        os.system("apt install lz4 -y")
+        os.system("apt install ./packages/termux-arm64/*")
+        os.system("echo '' > .nt")
+
+
+
+if os.geteuid() == 0:
+    files = [ "lpunpack", "lpadd" , "lpdump" ,"lpmake" ]
+    cpuarch = platform.architecture()
+    if cpuarch[0] == "64bit":
+        for file in files:
+            shutil.copy2(f"packages/amd64/{file}", "/usr/bin/")
+    os.system("echo '' > .nt")
+    print("Done, do re-run the script")
+    quit()
+elif os.path.isfile(".nt"):
+    print("OK")
+elif ANDROID_TARGET_VARIABLE in os.environ:
+    print("OK")
+else:
+    print("Sudo first at init")
+    quit()
+
+
+from simple_term_menu import TerminalMenu
 
 # STRINGS
 DIR = sys.path[0]
@@ -50,27 +92,33 @@ except:
     
 # IMG SIZES
 try:
-    SYSTEM_IMG = os.path.getsize(f"{TARGET_DIR}/system.img")
+    SYSTEM_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/system.img")
+    SYSTEM_IMG = SYSTEM_IMG_RAW
 except OSError:
     SYSTEM_IMG = "Not present"
 try:
-    ODM_IMG = os.path.getsize(f"{TARGET_DIR}/odm.img")
+    ODM_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/odm.img")
+    ODM_IMG = ODM_IMG_RAW
 except OSError:
     ODM_IMG = "Not present"
 try:
-    PRODUCT_IMG = os.path.getsize(f"{TARGET_DIR}/product.img")
+    PRODUCT_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/product.img")
+    PRODUCT_IMG = PRODUCT_IMG_RAW
 except OSError:
     PRODUCT_IMG = "Not present"
 try:
-    VENDOR_IMG = os.path.getsize(f"{TARGET_DIR}/vendor.img")
+    VENDOR_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/vendor.img")
+    VENDOR_IMG = VENDOR_IMG_RAW
 except OSError:
     VENDOR_IMG = "Not present"
 try:
-    SUPER_IMG = os.path.getsize(f"{TARGET_DIR}/super.img")
+    SUPER_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/super.img")
+    SUPER_IMG = SUPER_IMG_RAW
 except OSError:
     SUPER_IMG = "Not present"
 try:
-    SYSTEM_EXT_IMG = os.path.getsize(f"{TARGET_DIR}/system_ext.img")
+    SYSTEM_EXT_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/system_ext.img")
+    SYSTEM_EXT_IMG = SYSTEM_EXT_IMG_RAW
 except OSError:
     SYSTEM_EXT_IMG = "Not present"
 
@@ -130,27 +178,33 @@ def refresh_variable():
     except:
         EXT_SELECT = "Not present"
     try:
-        SYSTEM_IMG = os.path.getsize(f"{TARGET_DIR}/system.img")
+        SYSTEM_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/system.img")
+        SYSTEM_IMG = SYSTEM_IMG_RAW
     except OSError:
         SYSTEM_IMG = "FILE NOT FOUND"
     try:
-        ODM_IMG = os.path.getsize(f"{TARGET_DIR}/odm.img")
+        ODM_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/odm.img")
+        ODM_IMG = ODM_IMG_RAW
     except OSError:
         ODM_IMG = "FILE NOT FOUND"
     try:
-        PRODUCT_IMG = os.path.getsize(f"{TARGET_DIR}/product.img")
+        PRODUCT_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/product.img")
+        PRODUCT_IMG = PRODUCT_IMG_RAW
     except OSError:
         PRODUCT_IMG = "FILE NOT FOUND"
     try:
-        VENDOR_IMG = os.path.getsize(f"{TARGET_DIR}/vendor.img")
+        VENDOR_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/vendor.img")
+        VENDOR_IMG = VENDOR_IMG_RAW
     except OSError:
         VENDOR_IMG = "FILE NOT FOUND"
     try:
-        SUPER_IMG = os.path.getsize(f"{TARGET_DIR}/super.img")
+        SUPER_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/super.img")
+        SUPER_IMG = SUPER_IMG_RAW
     except OSError:
         SUPER_IMG = "FILE NOT FOUND"
     try:
-        SYSTEM_EXT_IMG = os.path.getsize(f"{TARGET_DIR}/system_ext.img")
+        SYSTEM_EXT_IMG_RAW = os.path.getsize(f"{TARGET_DIR}/system_ext.img")
+        SYSTEM_EXT_IMG = SYSTEM_EXT_IMG_RAW
     except OSError:
         SYSTEM_EXT_IMG = "FILE NOT FOUND"
     
@@ -329,6 +383,7 @@ def extract_menupage():
                     refresh_variable()
             if EXT_SELECT != "Not Present":
                 os.system(f"func/extract.sh --extract --ap {EXT_SELECT}")
+                os.system(f"func/printf_call.sh --measure imgbuild/super.img")
             else:
                 print(f"File select says: {EXT_SELECT}")
                 print("ERROR")
@@ -361,6 +416,7 @@ def extract_menupage():
                     refresh_variable()
             if EXT_SELECT != "Not Present":
                 os.system(f"func/extract.sh --extract --super {EXT_SELECT}")
+                os.system(f"func/printf_call.sh --measure imgbuild/super.img")
             else:
                 print(f"File select says: {EXT_SELECT}")
                 print("ERROR")
@@ -393,6 +449,7 @@ def extract_menupage():
                     refresh_variable()
             if EXT_SELECT != "Not Present":
                 os.system(f"func/extract.sh --extract --super {EXT_SELECT}")
+                os.system(f"func/printf_call.sh --measure imgbuild/super.img")
             else:
                 print(f"File select says: {EXT_SELECT}")
                 print("ERROR")
@@ -561,10 +618,9 @@ def build_menupage():
                 
                 main_menu = TerminalMenu(
                     menu_entries=items,
-                    menu_cursor="(:O ) --->",
+                    menu_cursor="(:O ) CAUTION --->  ",
                     title = build_title,
                     cycle_cursor=True,
-                    default_selection = 0
                 )
                 
                 while not menu_exit:
@@ -594,7 +650,7 @@ def build_menupage():
                 
                 main_menu = TerminalMenu(
                     menu_entries=items,
-                    menu_cursor="(:O ) --->",
+                    menu_cursor="(:O ) CAUTION --->  ",
                     title = build_title,
                     cycle_cursor=True,
                     default_selection = 0
@@ -625,7 +681,7 @@ def build_menupage():
         elif menu_selection == None: 
             os.system('clear')
             menu_exit = True
-            main_menu()
+            mainmenu()
 
 def about():
     os.system('clear')

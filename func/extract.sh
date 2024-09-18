@@ -22,7 +22,7 @@ case $1 in
                         lz4 -c -d "$(realpath .)/imgbuild/super.img.lz4" > "$(realpath .)/imgbuild/super.img"
                     fi
                     echo "Done extracting $(basename $3)"
-                    echo "Preparing to raw the simg"
+                    echo "Preparing the simg"
                     sleep 5
                     simg2img $(realpath imgbuild)/super.img $(realpath imgbuild)/super_raw.img
                     if [ "$(ls -nl "$(realpath imgbuild)/super_raw.img" | awk '{print $5}')" -lt 100000 ]; then

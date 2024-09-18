@@ -4,7 +4,7 @@ TMP=$(realpath cached_proc) # Compatibility with snippet code
 
 case $1 in
     "--measure")
-        if [ -e "$2" ]; then # this is meant to avoid null invokes
+        if [ -e "$2" ]; then # this is meant ensure it is there :D
             if [ "$(ls -nl "$(realpath imgbuild)/super_raw.img" | awk '{print $5}')" -lt 100000 ]; then
                 lpdump $(realpath imgbuild)/super.img > $(realpath cached_proc)/super_map.txt
                 printf "$(<$TMP$/super_map.txt)" | grep -e "Size:" | awk '{print $2}' > $TMP/super_size.txt
